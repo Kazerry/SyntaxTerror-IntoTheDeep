@@ -1,6 +1,7 @@
 package autoModes;
 
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -14,6 +15,8 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 
+import config.localization.KalmanFuse;
+import config.localization.Limelight;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -25,6 +28,11 @@ public class AutoTest extends OpMode {
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState, actionState, clawState;
     private String navigation;
+    private KalmanFuse kalmanFuse;
+
+
+    private Limelight3A limelight;
+    private Limelight LimeInit;
 
     //Start pose
     private Pose startPose = new Pose(9.3, 85.3, 0);
@@ -195,6 +203,11 @@ public class AutoTest extends OpMode {
         autonomousPathUpdate();
         //autonomousActionUpdate();
 
+        //Kalman filtering and Pose fusing between PedroPathing and LimeLight
+        kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
+        Pose tempPose = kalmanFuse.getFusedPose();
+        follower.setPose(tempPose);
+
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -206,6 +219,13 @@ public class AutoTest extends OpMode {
     /** This method is called once at the init of the OpMode. **/
     @Override
     public void init() {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        kalmanFuse = new KalmanFuse();
+        kalmanFuse.KalmanInit();
+        LimeInit = new Limelight();
+        LimeInit.LimelightInit(limelight);
+
+
         pathTimer = new Timer();
         actionTimer = new Timer();
         opmodeTimer = new Timer();

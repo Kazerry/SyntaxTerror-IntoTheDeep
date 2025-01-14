@@ -3,7 +3,9 @@ package OpModes;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
-import pedroPathing.constants.*;
+
+import config.localization.KalmanFuse;
+import config.localization.Limelight;
 import config.subsystems.SlideSubsystem;
 import config.subsystems.ClawSubsystem;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -12,6 +14,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -19,6 +22,7 @@ import pedroPathing.constants.LConstants;
 @TeleOp(name = "Into The Deep TeleOp", group = "!TeleOp")
 public class TeleOpFull extends OpMode {
     private Follower follower;
+    private KalmanFuse kalmanFuse;
     /**
      * Make sure to startPose with the actual starting pose
      **/
@@ -37,6 +41,9 @@ public class TeleOpFull extends OpMode {
     //private DcMotorEx spool1;
     //private DcMotorEx spool2;
 
+    private Limelight3A limelight;
+    private Limelight LimeInit;
+
     private boolean isHalfSpeed = false;
     private boolean lastToggleState = false;
 
@@ -49,6 +56,8 @@ public class TeleOpFull extends OpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
 
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         slide1 = hardwareMap.get(DcMotorEx.class, "slide1");
         slide2 = hardwareMap.get(DcMotorEx.class, "slide2");
         //spool1 = hardwareMap.get(DcMotorEx.class, "spool1");
@@ -61,6 +70,11 @@ public class TeleOpFull extends OpMode {
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        kalmanFuse = new KalmanFuse();
+        kalmanFuse.KalmanInit();
+        LimeInit = new Limelight();
+        LimeInit.LimelightInit(limelight);
 
         claw = new ClawSubsystem(clawServo, colorSensor);
         slides = new SlideSubsystem(slide1, slide2, 0, 0, 0,0,537.7/360.0);
@@ -81,6 +95,11 @@ public class TeleOpFull extends OpMode {
         claw.manageClaw();
         slides.update();
         //spool.update();
+
+        //Kalman filtering and Pose fusing between PedroPathing and LimeLight
+        kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
+        Pose tempPose = kalmanFuse.getFusedPose();
+        follower.setPose(tempPose);
 
         // Manual controls for claw behavior
         if (gamepad1.x) {
