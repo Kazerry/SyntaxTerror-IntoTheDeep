@@ -20,7 +20,6 @@ import config.localization.Limelight;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Disabled
 @Autonomous(name = "Example Auto Blue", group = "Test")
 public class AutoTest extends OpMode {
 
@@ -36,6 +35,7 @@ public class AutoTest extends OpMode {
 
     //Start pose
     private Pose startPose = new Pose(9.3, 85.3, 0);
+    public static Pose parkPose;
 
     /**Robot width and height were set to 19 and 18 respectively
      * when making the path in the PedroPathing Vercel generator
@@ -47,8 +47,7 @@ public class AutoTest extends OpMode {
     private Pose leftBlueSub = new Pose(24.5,74,Math.toRadians(0));
     private Pose observationBlue = new Pose(17,39,Math.toRadians(235));
 
-    //private Pose ;
-    //private Path ;
+
     private PathChain initialRightSub, rightMove, observationMove, observationBack, basketMove, leftSubMove;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
@@ -115,7 +114,7 @@ public class AutoTest extends OpMode {
                 break;
             case 12:
                 if (pathTimer.getElapsedTimeSeconds() > 2) {
-                follower.followPath(observationMove);
+                follower.followPath(observationMove, true);
                 setPathState(13);
                 }
                 break;
@@ -166,19 +165,19 @@ public class AutoTest extends OpMode {
 
     /** This switch is called continuously and runs the necessary actions, when finished, it will set the state to -1.
      * (Therefore, it will not run the action continuously) **/
-    /* basically more methods we can use if we need them for some reason
+    //This can be used for running the claw, lift, etc while a path is being executed
     public void autonomousActionUpdate() {
         switch (actionState) {
             case 0:
-                setClawState(0);
+                //Claw.up() or something
                 setActionState(-1);
                 break;
             case 1:
-                setClawState(1);
+                //Claw.down() or something
                 setActionState(-1);
                 break;
         }
-    }*/
+    }
 
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
@@ -188,11 +187,11 @@ public class AutoTest extends OpMode {
         autonomousPathUpdate();
     }
 
-    /*public void setActionState(int aState) {
+    public void setActionState(int aState) {
         actionState = aState;
-        pathTimer.resetTimer();
+        actionTimer.resetTimer();
         autonomousActionUpdate();
-    }*/
+    }
 
 
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
@@ -201,7 +200,7 @@ public class AutoTest extends OpMode {
         // These loop the actions and movement of the robot
         follower.update();
         autonomousPathUpdate();
-        //autonomousActionUpdate();
+        autonomousActionUpdate();
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
@@ -214,6 +213,11 @@ public class AutoTest extends OpMode {
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
+
+        //Manual stop to save our position if we go over time in order to not incur penalties
+        if (opmodeTimer.getElapsedTimeSeconds() > 30) {
+            stop();
+        }
     }
 
     /** This method is called once at the init of the OpMode. **/
@@ -223,7 +227,7 @@ public class AutoTest extends OpMode {
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
         LimeInit = new Limelight();
-        LimeInit.LimelightInit(limelight);
+        LimeInit.LimelightInit(limelight, follower, startPose);
 
 
         pathTimer = new Timer();
@@ -241,7 +245,7 @@ public class AutoTest extends OpMode {
     @Override
     public void init_loop(){
         /*
-        Put camera/sensor initialization stuff in here
+        Put camera/sensor initialization that needs to be looped in here
          */
 
         // After 4 Seconds, Robot Initialization is complete
@@ -257,12 +261,13 @@ public class AutoTest extends OpMode {
         buildPaths();
         opmodeTimer.resetTimer();
         setPathState(10);
-        //setActionState(0);
+        setActionState(0);
     }
 
-    /** We do not use this because everything should automatically disable **/
+    /** Stops robot and saves ending robot position for field centric TeleOp **/
     @Override
     public void stop(){
+        parkPose = follower.getPose();
     }
 }
 

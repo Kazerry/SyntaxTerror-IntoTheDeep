@@ -3,6 +3,7 @@ package OpModes;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import static autoModes.AutoTest.parkPose;
 
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
@@ -23,10 +24,8 @@ import pedroPathing.constants.LConstants;
 public class TeleOpFull extends OpMode {
     private Follower follower;
     private KalmanFuse kalmanFuse;
-    /**
-     * Make sure to startPose with the actual starting pose
-     **/
-    private final Pose startPose = new Pose(0,0,0);
+
+    private final Pose startPose = parkPose;
 
     private ClawSubsystem claw;
     private SlideSubsystem slides;
@@ -74,7 +73,7 @@ public class TeleOpFull extends OpMode {
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
         LimeInit = new Limelight();
-        LimeInit.LimelightInit(limelight);
+        LimeInit.LimelightInit(limelight, follower, startPose);
 
         claw = new ClawSubsystem(clawServo, colorSensor);
         slides = new SlideSubsystem(slide1, slide2, 0, 0, 0,0,537.7/360.0);

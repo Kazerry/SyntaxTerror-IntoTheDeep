@@ -4,6 +4,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 
+import static autoModes.AutoTest.parkPose;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import pedroPathing.constants.*;
@@ -87,7 +88,7 @@ public class SubsystemTest extends OpMode {
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
         LimeInit = new Limelight();
-        LimeInit.LimelightInit(limelight);
+        LimeInit.LimelightInit(limelight, follower, startPose);
 
         claw = new ClawSubsystem(clawServo, colorSensor);
         slides = new SlideSubsystem(slide1, slide2, subP, subI, subD,subF,537.7/360.0);
