@@ -25,6 +25,7 @@ public class AutoTest extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
+    public static Timer parkTimer;
     private int pathState, actionState, clawState;
     private String navigation;
     private KalmanFuse kalmanFuse;
@@ -102,7 +103,6 @@ public class AutoTest extends OpMode {
         switch (pathState) {
 
             case 10:
-                follower.setMaxPower(0.75);
                 follower.followPath(rightMove);
                 setPathState(11);
                 break;
@@ -234,10 +234,12 @@ public class AutoTest extends OpMode {
         actionTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        parkTimer = new Timer();
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+        follower.setMaxPower(0.75);
         buildPaths();
     }
 
@@ -268,6 +270,7 @@ public class AutoTest extends OpMode {
     @Override
     public void stop(){
         parkPose = follower.getPose();
+        parkTimer.resetTimer();
     }
 }
 

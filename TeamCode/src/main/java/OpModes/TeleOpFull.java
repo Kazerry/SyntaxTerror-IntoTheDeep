@@ -4,11 +4,14 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import static autoModes.AutoTest.parkPose;
+import static autoModes.AutoTest.parkTimer;
 
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
-import config.subsystems.SlideSubsystem;
+import config.subsystems.extSubsystem;
+import config.subsystems.pivotSubsystem;
 import config.subsystems.ClawSubsystem;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -25,26 +28,29 @@ public class TeleOpFull extends OpMode {
     private Follower follower;
     private KalmanFuse kalmanFuse;
 
-    private final Pose startPose = parkPose;
+    private Pose startPose;
 
     private ClawSubsystem claw;
-    private SlideSubsystem slides;
-    //private SpoolSubsystem spool;
+    private extSubsystem slides;
+    private pivotSubsystem pivot;
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
-    private DcMotorEx slide1;
-    private DcMotorEx slide2;
-    //private DcMotorEx spool1;
-    //private DcMotorEx spool2;
+    private DcMotorEx rightExtension;
+    private DcMotorEx leftExtension;
+    private DcMotorEx rightPivot;
+    private DcMotorEx leftPivot;
 
     private Limelight3A limelight;
     private Limelight LimeInit;
 
     private boolean isHalfSpeed = false;
     private boolean lastToggleState = false;
+
+    private Servo flip1;
+    private Servo flip2;
 
     /**
      * This initializes the drive motors as well as the Follower and motion Vectors.
@@ -53,16 +59,23 @@ public class TeleOpFull extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        if (parkTimer.getElapsedTimeSeconds() < 40) {
+            startPose = parkPose;
+        } else {
+            startPose = new Pose(0,0,0);
+        }
         follower.setStartingPose(startPose);
 
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        slide1 = hardwareMap.get(DcMotorEx.class, "slide1");
-        slide2 = hardwareMap.get(DcMotorEx.class, "slide2");
-        //spool1 = hardwareMap.get(DcMotorEx.class, "spool1");
-        //spool2 = hardwareMap.get(DcMotorEx.class, "spool2");
+        rightExtension = hardwareMap.get(DcMotorEx.class, "rightExtension");
+        leftExtension = hardwareMap.get(DcMotorEx.class, "leftExtension");
+        rightPivot = hardwareMap.get(DcMotorEx.class, "rightPivot");
+        leftPivot = hardwareMap.get(DcMotorEx.class, "leftPivot");
 
         Servo clawServo = hardwareMap.get(Servo.class, "Cservo");
+        flip1 = hardwareMap.get(Servo.class, "flip1");
+        flip2 = hardwareMap.get(Servo.class, "flip2");
         ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -76,8 +89,8 @@ public class TeleOpFull extends OpMode {
         LimeInit.LimelightInit(limelight, follower, startPose);
 
         claw = new ClawSubsystem(clawServo, colorSensor);
-        slides = new SlideSubsystem(slide1, slide2, 0, 0, 0,0,537.7/360.0);
-        //spool = new SpoolSubsystem(spool1,spool2,0,0,0,0,537.7/360.0);
+        slides = new extSubsystem(rightExtension, leftExtension, 0, 0, 0,0,537.7/360.0);
+        pivot = new pivotSubsystem(rightPivot,leftPivot,0,0,0,0,537.7/360.0);
 
         follower.startTeleopDrive();
         follower.setMaxPower(1);
@@ -93,7 +106,7 @@ public class TeleOpFull extends OpMode {
     public void loop() {
         claw.manageClaw();
         slides.update();
-        //spool.update();
+        pivot.update();
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
@@ -109,10 +122,10 @@ public class TeleOpFull extends OpMode {
         }
 
         if(gamepad1.a){
-            slides.moveToBottom();
+            pivot.moveToBottom();
         }
         if(gamepad1.b){
-            slides.moveToTop();
+            pivot.moveToTop();
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before
@@ -121,7 +134,8 @@ public class TeleOpFull extends OpMode {
         }
         lastToggleState = gamepad1.right_bumper; // Update the previous button state
 
-        telemetry.addData("slidePos", slides.getCurrentPosition());
+        telemetry.addData("extensionPos", slides.getCurrentPosition());
+        telemetry.addData("pivotPos", pivot.getCurrentPosition());
         telemetry.update();
 
 

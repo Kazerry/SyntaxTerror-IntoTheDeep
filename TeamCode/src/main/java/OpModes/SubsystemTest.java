@@ -4,11 +4,10 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 
-import static autoModes.AutoTest.parkPose;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
-import pedroPathing.constants.*;
-import config.subsystems.SlideSubsystem;
+import config.subsystems.extSubsystem;
+import config.subsystems.pivotSubsystem;
 import config.subsystems.ClawSubsystem;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -32,17 +31,17 @@ public class SubsystemTest extends OpMode {
     private final Pose startPose = new Pose(0,0,0);
 
     private ClawSubsystem claw;
-    private SlideSubsystem slides;
-    //private SpoolSubsystem spool;
+    private extSubsystem slides;
+    private pivotSubsystem pivot;
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
-    private DcMotorEx slide1;
-    private DcMotorEx slide2;
-    //private DcMotorEx spool1;
-    //private DcMotorEx spool2;
+    private DcMotorEx rightExtension;
+    private DcMotorEx leftExtension;
+    private DcMotorEx rightPivot;
+    private DcMotorEx leftPivot;
 
     private Limelight3A limelight;
     private Limelight LimeInit;
@@ -69,11 +68,10 @@ public class SubsystemTest extends OpMode {
         follower.setStartingPose(startPose);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        slide1 = hardwareMap.get(DcMotorEx.class, "slide1");
-        slide2 = hardwareMap.get(DcMotorEx.class, "slide2");
-
-        //spool1 = hardwareMap.get(DcMotorEx.class, "spool1");
-        //spool2 = hardwareMap.get(DcMotorEx.class, "spool2");
+        rightExtension = hardwareMap.get(DcMotorEx.class, "rightExtension");
+        leftExtension = hardwareMap.get(DcMotorEx.class, "leftExtension");
+        rightPivot = hardwareMap.get(DcMotorEx.class, "rightPivot");
+        leftPivot = hardwareMap.get(DcMotorEx.class, "leftPivot");
 
         Servo clawServo = hardwareMap.get(Servo.class, "Cservo");
         flip1 = hardwareMap.get(Servo.class, "flip1");
@@ -91,8 +89,8 @@ public class SubsystemTest extends OpMode {
         LimeInit.LimelightInit(limelight, follower, startPose);
 
         claw = new ClawSubsystem(clawServo, colorSensor);
-        slides = new SlideSubsystem(slide1, slide2, subP, subI, subD,subF,537.7/360.0);
-        //spool = new SpoolSubsystem(spool1, spool2,spP,spI,spD,spF,537.7/360.0);
+        slides = new extSubsystem(rightExtension, leftExtension, 0, 0, 0,0,537.7/360.0);
+        pivot = new pivotSubsystem(rightPivot,leftPivot,0,0,0,0,537.7/360.0);
 
         follower.startTeleopDrive();
         follower.setMaxPower(1);
@@ -110,7 +108,7 @@ public class SubsystemTest extends OpMode {
         // Update subsystems
         claw.manageClaw();
         slides.update();
-        //spool.update();
+        pivot.update();
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
@@ -136,10 +134,10 @@ public class SubsystemTest extends OpMode {
         };
 
         if(gamepad1.a){
-            slides.moveToBottom();
+            pivot.moveToBottom();
         }
         if(gamepad1.b){
-            slides.moveToTop();
+            pivot.moveToTop();
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before
@@ -155,9 +153,12 @@ public class SubsystemTest extends OpMode {
         }
         telemetry.addData("flip 1 pos", flip1pos1);
         telemetry.addData("flip 2 pos", flip2pos1);
-        telemetry.addData("avgSlidePos", slides.getCurrentPosition());
-        telemetry.addData("slidePos1", slide1.getCurrentPosition());
-        telemetry.addData("slidePos2", slide2.getCurrentPosition());
+        telemetry.addData("avgExtensionPos", slides.getCurrentPosition());
+        telemetry.addData("rightExtension", rightExtension.getCurrentPosition());
+        telemetry.addData("leftExtension", leftExtension.getCurrentPosition());
+        telemetry.addData("avgPivotPos", pivot.getCurrentPosition());
+        telemetry.addData("rightPivot", rightPivot.getCurrentPosition());
+        telemetry.addData("leftPivot", leftPivot.getCurrentPosition());
         telemetry.update();
 
         follower.setTeleOpMovementVectors(-gamepad1.left_stick_y,

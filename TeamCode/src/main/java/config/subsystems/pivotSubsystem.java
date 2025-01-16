@@ -6,7 +6,7 @@ import static config.RobotConstants.slideUp;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class SpoolSubsystem {
+public class pivotSubsystem {
     private PIDController controller;
     private DcMotorEx slide1, slide2;
 
@@ -18,7 +18,7 @@ public class SpoolSubsystem {
 
     private int targetPosition = 0;
 
-    public SpoolSubsystem(DcMotorEx slide1, DcMotorEx slide2, double p, double i, double d, double f, double ticksInDegree) {
+    public pivotSubsystem(DcMotorEx slide1, DcMotorEx slide2, double p, double i, double d, double f, double ticksInDegree) {
         this.slide1 = slide1;
         this.slide2 = slide2;
         this.p = p;
