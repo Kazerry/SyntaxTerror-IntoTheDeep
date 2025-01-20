@@ -1,6 +1,9 @@
 package config;
 
+import com.acmerobotics.dashboard.config.Config;
+
 /** Everything that we want to store globally, for example positions of servos, motors, etc. goes in here. **/
+@Config
 public class RobotConstants {
 
     /** Variables are positions for the claw servos. **/

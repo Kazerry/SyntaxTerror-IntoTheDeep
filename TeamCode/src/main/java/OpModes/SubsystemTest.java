@@ -1,9 +1,13 @@
 package OpModes;
 
+import static config.localization.Limelight.LX;
+import static config.localization.Limelight.LY;
+import static config.localization.KalmanFuse.rawPedroPose;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
-
+import com.acmerobotics.dashboard.config.Config;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.extSubsystem;
@@ -21,6 +25,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+@Config
 @TeleOp(name = "SubsystemTest", group = "Test")
 public class SubsystemTest extends OpMode {
     private Follower follower;
@@ -30,7 +35,7 @@ public class SubsystemTest extends OpMode {
      **/
     private final Pose startPose = new Pose(0,0,0);
 
-    private ClawSubsystem claw;
+    //private ClawSubsystem claw;
     private extSubsystem slides;
     private pivotSubsystem pivot;
 
@@ -73,22 +78,23 @@ public class SubsystemTest extends OpMode {
         rightPivot = hardwareMap.get(DcMotorEx.class, "rightPivot");
         leftPivot = hardwareMap.get(DcMotorEx.class, "leftPivot");
 
-        Servo clawServo = hardwareMap.get(Servo.class, "Cservo");
+        //Servo clawServo = hardwareMap.get(Servo.class, "Cservo");
         flip1 = hardwareMap.get(Servo.class, "flip1");
         flip2 = hardwareMap.get(Servo.class, "flip2");
-        ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
+        //ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
 
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        /*leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);*/
 
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
+        rawPedroPose = startPose;
         LimeInit = new Limelight();
         LimeInit.LimelightInit(limelight, follower, startPose);
 
-        claw = new ClawSubsystem(clawServo, colorSensor);
+        //claw = new ClawSubsystem(clawServo, colorSensor);
         slides = new extSubsystem(rightExtension, leftExtension, 0, 0, 0,0,537.7/360.0);
         pivot = new pivotSubsystem(rightPivot,leftPivot,0,0,0,0,537.7/360.0);
 
@@ -106,7 +112,7 @@ public class SubsystemTest extends OpMode {
     @Override
     public void loop() {
         // Update subsystems
-        claw.manageClaw();
+        //claw.manageClaw();
         slides.update();
         pivot.update();
 
@@ -116,12 +122,12 @@ public class SubsystemTest extends OpMode {
         follower.setPose(tempPose);
 
         // Manual controls for claw behavior
-        if (gamepad1.x) {
+        /*if (gamepad1.x) {
             claw.closeClaw();
         }
         if (gamepad1.y) {
             claw.openClaw();
-        }
+        }*/
 
         if(gamepad1.dpad_up){
             flip1.setPosition(flip1pos1);
@@ -151,8 +157,17 @@ public class SubsystemTest extends OpMode {
         } else {
             telemetry.addLine("Robot Speed Half");
         }
-        telemetry.addData("flip 1 pos", flip1pos1);
-        telemetry.addData("flip 2 pos", flip2pos1);
+
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("LLx", LX);
+        telemetry.addData("LLy", LY);
+        telemetry.addData("Fx", tempPose.getX());
+        telemetry.addData("Fy", tempPose.getY());
+        telemetry.addData("FHeading", tempPose.getHeading());
+        //telemetry.addData("flip 1 pos", flip1pos1);
+        //telemetry.addData("flip 2 pos", flip2pos1);
         telemetry.addData("avgExtensionPos", slides.getCurrentPosition());
         telemetry.addData("rightExtension", rightExtension.getCurrentPosition());
         telemetry.addData("leftExtension", leftExtension.getCurrentPosition());

@@ -1,6 +1,8 @@
 package autoModes;
 
 
+import static config.localization.KalmanFuse.rawPedroPose;
+
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -226,6 +228,7 @@ public class AutoTest extends OpMode {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
+        rawPedroPose = startPose;
         LimeInit = new Limelight();
         LimeInit.LimelightInit(limelight, follower, startPose);
 

@@ -5,6 +5,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import static autoModes.AutoTest.parkPose;
 import static autoModes.AutoTest.parkTimer;
+import static config.localization.KalmanFuse.rawPedroPose;
 
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
@@ -85,6 +86,7 @@ public class TeleOpFull extends OpMode {
 
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
+        rawPedroPose = startPose;
         LimeInit = new Limelight();
         LimeInit.LimelightInit(limelight, follower, startPose);
 
