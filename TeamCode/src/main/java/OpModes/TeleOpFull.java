@@ -10,7 +10,7 @@ import static config.localization.KalmanFuse.rawPedroPose;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.extSubsystem;
-import config.subsystems.pivotSubsystem;
+import config.subsystems.archiveSubsystems.pivotSubsystem;
 import config.subsystems.ClawSubsystem;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;

@@ -2,6 +2,7 @@ package config.localization;
 
 import static config.localization.Limelight.LX;
 import static config.localization.Limelight.LY;
+import static OpModes.SubsystemTest.telemTest;
 import config.localization.Limelight;
 
 import com.pedropathing.localization.Pose;
@@ -16,6 +17,8 @@ public class KalmanFuse {
 
     private Pose fusedPose;  // The final fused pose using Kalman filter
     private Pose pedroPose;  // Pedro Pathing pose
+    private static Pose fPose;
+    private static Pose weighPose;
 
     public static Pose rawPedroPose;
 
@@ -37,6 +40,8 @@ public class KalmanFuse {
         //each pos rawPedroPose + (followerPose - fusedPose)
         // Get the raw Pose from PedroPathing
         pedroPose = rawPedroPose;
+
+        fPose = new Pose(followerPose.getX(), followerPose.getY(), followerPose.getHeading());
 
         LimeClass.getPose();
         // Convert Limelight bot position to Pose2d
@@ -72,8 +77,8 @@ public class KalmanFuse {
         private double[][] P = new double[3][3];  // Covariance matrix
 
         //Adjust weight for the Kalman Filter here
-        private double R = 1;  // Measurement noise (Limelight Pose) 0.07 for 70%
-        private double Q = 1;  // Process noise (Pedro Pose) 0.2 for 30%
+        private double R = 1.0;  // Measurement noise
+        private double Q = 0.3;  // Process noise
 
         public KalmanFilter() {
             // Initialize covariance matrix
@@ -126,8 +131,22 @@ public class KalmanFuse {
                 }
             }
 
+            /**I need to weigh stuff to see if I get a more accurate measurement that way
+             *
+             */
+            weighPose = new Pose((fPose.getX() * 0.98) + (LimelightPose.getX() * 0.02),
+                    (fPose.getY() * 0.98) + (LimelightPose.getY() * 0.02),
+                    fPose.getHeading());
+            if (telemTest){
+                return weighPose;
+            }
+
+            if (x[0] > 144 || x[1] > 144){
+                return pedroPose;
+            }
+
             // Return the fused pose
-            return new Pose(x[0], x[1], x[2]);
+            return new Pose(x[0], x[1], pedroPose.getHeading());
         }
     }
 }

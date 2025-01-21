@@ -10,14 +10,13 @@ import com.pedropathing.util.Constants;
 import com.acmerobotics.dashboard.config.Config;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
+import config.subsystems.Pivot;
+import config.subsystems.archiveSubsystems.pivotSubsystem;
 import config.subsystems.extSubsystem;
-import config.subsystems.pivotSubsystem;
-import config.subsystems.ClawSubsystem;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -37,7 +36,7 @@ public class SubsystemTest extends OpMode {
 
     //private ClawSubsystem claw;
     private extSubsystem slides;
-    private pivotSubsystem pivot;
+    private Pivot pivot;
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
@@ -61,6 +60,7 @@ public class SubsystemTest extends OpMode {
     public static double flip1pos2 = 0.6;
     public static double flip2pos2 = 0.4;
 
+    public static boolean telemTest = false;
 
     private Servo flip1;
     private Servo flip2;
@@ -83,6 +83,11 @@ public class SubsystemTest extends OpMode {
         flip2 = hardwareMap.get(Servo.class, "flip2");
         //ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
 
+        leftPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         /*leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -96,7 +101,7 @@ public class SubsystemTest extends OpMode {
 
         //claw = new ClawSubsystem(clawServo, colorSensor);
         slides = new extSubsystem(rightExtension, leftExtension, 0, 0, 0,0,537.7/360.0);
-        pivot = new pivotSubsystem(rightPivot,leftPivot,0,0,0,0,537.7/360.0);
+        pivot = new Pivot(hardwareMap, rightPivot, leftPivot); //River Pivot
 
         follower.startTeleopDrive();
         follower.setMaxPower(1);
@@ -116,6 +121,7 @@ public class SubsystemTest extends OpMode {
         slides.update();
         pivot.update();
 
+
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
         Pose tempPose = kalmanFuse.getFusedPose();
@@ -129,6 +135,12 @@ public class SubsystemTest extends OpMode {
             claw.openClaw();
         }*/
 
+        if(gamepad1.right_trigger > 0.5){
+            telemTest = true;
+        } else {
+            telemTest = false;
+        }
+
         if(gamepad1.dpad_up){
             flip1.setPosition(flip1pos1);
             flip2.setPosition(flip2pos1);
@@ -139,11 +151,13 @@ public class SubsystemTest extends OpMode {
             flip2.setPosition(flip2pos2);
         };
 
-        if(gamepad1.a){
-            pivot.moveToBottom();
+       if(gamepad1.a){
+            pivot.setkP("Normal");
+            pivot.setPos("Down");
         }
         if(gamepad1.b){
-            pivot.moveToTop();
+            pivot.setkP("Normal");
+            pivot.setPos("Start");
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before
@@ -171,7 +185,7 @@ public class SubsystemTest extends OpMode {
         telemetry.addData("avgExtensionPos", slides.getCurrentPosition());
         telemetry.addData("rightExtension", rightExtension.getCurrentPosition());
         telemetry.addData("leftExtension", leftExtension.getCurrentPosition());
-        telemetry.addData("avgPivotPos", pivot.getCurrentPosition());
+        //telemetry.addData("avgPivotPos", pivot.getCurrentPosition());
         telemetry.addData("rightPivot", rightPivot.getCurrentPosition());
         telemetry.addData("leftPivot", leftPivot.getCurrentPosition());
         telemetry.update();

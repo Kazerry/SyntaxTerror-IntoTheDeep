@@ -15,12 +15,17 @@ public class RobotConstants {
     public static int armDown = 0;
 
     /** Variables are positions for the Slide Motors. **/
-    public static int slideUp = 500;
+    public static int slideUp = 120;
     public static int slideDown = 0;
 
     /** Variables are color values for the color sensor **/
     public static int yellowBlueMin = 200, yellowBlueMax = 700;
     public static int yellowRedMin = 1000, yellowRedMax = 2030;
     public static int yellowGreenMin = 1000, yellowGreenMax = 2550;
+
+    //River Pivot things
+    public static boolean inThresh(double val, double val2, double tol) {
+        return Math.abs(val - val2) < tol;
+    }
 
 }
