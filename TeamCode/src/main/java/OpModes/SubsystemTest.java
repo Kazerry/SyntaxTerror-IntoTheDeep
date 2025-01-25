@@ -2,7 +2,7 @@ package OpModes;
 
 import static config.localization.Limelight.LX;
 import static config.localization.Limelight.LY;
-import static config.localization.KalmanFuse.rawPedroPose;
+import static config.localization.Limelight.fiducialResults;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -11,8 +11,8 @@ import com.acmerobotics.dashboard.config.Config;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.Pivot;
-import config.subsystems.archiveSubsystems.pivotSubsystem;
-import config.subsystems.extSubsystem;
+import config.subsystems.Extension;
+import config.subsystems.Wrist;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -35,8 +36,9 @@ public class SubsystemTest extends OpMode {
     private final Pose startPose = new Pose(0,0,0);
 
     //private ClawSubsystem claw;
-    private extSubsystem slides;
+    private Extension extension;
     private Pivot pivot;
+    private Wrist wrist;
 
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
@@ -46,6 +48,7 @@ public class SubsystemTest extends OpMode {
     private DcMotorEx leftExtension;
     private DcMotorEx rightPivot;
     private DcMotorEx leftPivot;
+    private TouchSensor extLimit;
 
     private Limelight3A limelight;
     private Limelight LimeInit;
@@ -60,10 +63,12 @@ public class SubsystemTest extends OpMode {
     public static double flip1pos2 = 0.6;
     public static double flip2pos2 = 0.4;
 
-    public static boolean telemTest = false;
-
     private Servo flip1;
     private Servo flip2;
+    private Servo bicepLeft;
+    private Servo bicepRight;
+    private Servo forearm;
+    private Servo rotation;
 
     @Override
     public void init() {
@@ -77,16 +82,26 @@ public class SubsystemTest extends OpMode {
         leftExtension = hardwareMap.get(DcMotorEx.class, "leftExtension");
         rightPivot = hardwareMap.get(DcMotorEx.class, "rightPivot");
         leftPivot = hardwareMap.get(DcMotorEx.class, "leftPivot");
+        extLimit = hardwareMap.get(TouchSensor.class, "extLimit");
 
         //Servo clawServo = hardwareMap.get(Servo.class, "Cservo");
         flip1 = hardwareMap.get(Servo.class, "flip1");
         flip2 = hardwareMap.get(Servo.class, "flip2");
+        bicepLeft = hardwareMap.get(Servo.class, "bicepLeft");
+        bicepRight = hardwareMap.get(Servo.class, "bicepRight");
+        rotation = hardwareMap.get(Servo.class, "rotation");
+        forearm = hardwareMap.get(Servo.class, "forearm");
         //ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
 
         leftPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         /*leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -95,13 +110,13 @@ public class SubsystemTest extends OpMode {
 
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
-        rawPedroPose = startPose;
         LimeInit = new Limelight();
         LimeInit.LimelightInit(limelight, follower, startPose);
 
         //claw = new ClawSubsystem(clawServo, colorSensor);
-        slides = new extSubsystem(rightExtension, leftExtension, 0, 0, 0,0,537.7/360.0);
+        extension = new Extension(leftExtension, rightExtension, extLimit); //River Extension
         pivot = new Pivot(hardwareMap, rightPivot, leftPivot); //River Pivot
+        wrist = new Wrist(bicepLeft, bicepRight, forearm, rotation); //River Wrist
 
         follower.startTeleopDrive();
         follower.setMaxPower(1);
@@ -118,27 +133,22 @@ public class SubsystemTest extends OpMode {
     public void loop() {
         // Update subsystems
         //claw.manageClaw();
-        slides.update();
+        extension.update();
         pivot.update();
+        wrist.update();
 
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
         Pose tempPose = kalmanFuse.getFusedPose();
-        follower.setPose(tempPose);
+        //follower.setPose(tempPose);
 
         // Manual controls for claw behavior
-        /*if (gamepad1.x) {
-            claw.closeClaw();
+        if (gamepad1.x) {
+            extension.setPos("Idle");
         }
         if (gamepad1.y) {
-            claw.openClaw();
-        }*/
-
-        if(gamepad1.right_trigger > 0.5){
-            telemTest = true;
-        } else {
-            telemTest = false;
+            extension.setPos("Intake");
         }
 
         if(gamepad1.dpad_up){
@@ -174,20 +184,19 @@ public class SubsystemTest extends OpMode {
 
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("headingDeg", follower.getPose().getHeading());
         telemetry.addData("LLx", LX);
         telemetry.addData("LLy", LY);
         telemetry.addData("Fx", tempPose.getX());
         telemetry.addData("Fy", tempPose.getY());
-        telemetry.addData("FHeading", tempPose.getHeading());
+        telemetry.addData("FHeadingDeg", tempPose.getHeading());
         //telemetry.addData("flip 1 pos", flip1pos1);
         //telemetry.addData("flip 2 pos", flip2pos1);
-        telemetry.addData("avgExtensionPos", slides.getCurrentPosition());
         telemetry.addData("rightExtension", rightExtension.getCurrentPosition());
         telemetry.addData("leftExtension", leftExtension.getCurrentPosition());
-        //telemetry.addData("avgPivotPos", pivot.getCurrentPosition());
         telemetry.addData("rightPivot", rightPivot.getCurrentPosition());
         telemetry.addData("leftPivot", leftPivot.getCurrentPosition());
+        telemetry.addData("Apriltags",fiducialResults);
         telemetry.update();
 
         follower.setTeleOpMovementVectors(-gamepad1.left_stick_y,
@@ -195,5 +204,87 @@ public class SubsystemTest extends OpMode {
                 -gamepad1.right_stick_x,
                 false);
         follower.update();
+    }
+    public void setPositions(int pos)  {
+            switch (pos) {
+                case 0: // Idle
+                    pivot.setPos("Idle");
+                    pivot.setkP("Normal");
+                    extension.setPos("Idle");
+                    wrist.setBicepPos("Idle");
+                    wrist.setForearmPos("Idle");
+                    break;
+                case 1: // Sample Intake: Down, Unextended
+                    pivot.setPos("Down");
+                    pivot.setkP("Normal");
+                    extension.setPos("Idle");
+                    wrist.setBicepPos("Idle");
+                    wrist.setForearmPos("Idle");
+
+                    break;
+                case 2: // Sample Extend
+                    pivot.setPos("Down");
+                    pivot.setkP("Extended");
+                    extension.setPos("Intake");
+                    wrist.setBicepPos("Idle");
+                    wrist.setForearmPos("Idle");
+                    break;
+                case 3: // Flip Down
+                    pivot.setPos("Down");
+                    pivot.setkP("Extended");
+                    extension.setPos("Intake");
+                    wrist.setBicepPos("Intake");
+                    wrist.setForearmPos("Intake");
+                    break;
+                case 4: // Flip Up
+                    pivot.setPos("Down");
+                    pivot.setkP("Extended");
+                    extension.setPos("Intake");
+                    wrist.setBicepPos("Idle");
+                    wrist.setForearmPos("Idle");
+                    break;
+                case 5: // Pullout
+                    pivot.setPos("Down");
+                    pivot.setkP("Normal");
+                    extension.setPos("Idle");
+                    wrist.setBicepPos("Idle");
+                    wrist.setForearmPos("Idle");
+                    wrist.setRotationPos(0);
+                    break;
+                case 6: // Idle
+                    pivot.setPos("Idle");
+                    pivot.setkP("Normal");
+                    extension.setPos("Idle");
+                    wrist.setBicepPos("Idle");
+                    wrist.setForearmPos("Idle");
+                    break;
+                case 7: // High Basket
+                    pivot.setPos("Basket");
+                    pivot.setkP("Extended");
+                    extension.setPos("Basket");
+                    wrist.setBicepPos("Basket");
+                    wrist.setForearmPos("Basket");
+                    break;
+                case 8: // Flip Out
+                    pivot.setPos("Basket");
+                    pivot.setkP("Extended");
+                    extension.setPos("Basket");
+                    wrist.setBicepPos("Intake");
+                    wrist.setForearmPos("Intake");
+                    break;
+                case -1: // Hang Pivot Position
+                    wrist.setBicepPos("Intake");
+                    wrist.setForearmPos("Intake");
+                    pivot.setPos("Hang");
+                    extension.setPos("Idle");
+                    break;
+                case -2: // Hang Extend
+                    extension.setPos("Hang");
+                    break;
+                case -3: // Hang Retract
+                    extension.setPos("Retract");
+                    break;
+            }
+
     }
 }
