@@ -83,11 +83,18 @@ public class AutoTest extends OpMode {
     private PathChain initialRightSub, rightMove, specimenCurve,
             observationBack1, basketMove, leftSubMove, observationPush1, observationDown1,
     observationPush2, observationBack2, observationDown2, observationPush3, observationDown3,
-            curveBack, place1, placeBack1, place2, placeBack2, place3, placeBack3, place4;;
+            curveBack, place1, placeBack1, place2, placeBack2, place3, placeBack3, place4,
+            rightMover;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
+
+        rightMover = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(grabPlace)))
+                .setConstantHeadingInterpolation(0)
+                .setPathEndTimeoutConstraint(0.5)
+                .build();
 
         //Line1
         rightMove = follower.pathBuilder()
@@ -230,10 +237,11 @@ public class AutoTest extends OpMode {
     //Cases for larger paths
     public void autonomousPathUpdate() {
         switch (pathState) {
-
+            case 5:
+                    follower.followPath(rightMover, true);
+                    setPathState(-1);
             case 10:
                 //Line1
-                wrist.setRotationPos(1);
                 //close claw
                 //clawServo.setPosition(RobotConstants.closeClaw);
                 if(pathTimer.getElapsedTimeSeconds() > 1) {
@@ -409,7 +417,7 @@ public class AutoTest extends OpMode {
     /** This switch is called continuously and runs the necessary actions, when finished, it will set the state to -1.
      * (Therefore, it will not run the action continuously) **/
     //This can be used for running the claw, lift, etc while a path is being executed
-    public void autonomousActionUpdate() {
+    /*public void autonomousActionUpdate() {
         switch (actionState) {
             case 0:
                 //This should be folded/Idle
@@ -426,7 +434,7 @@ public class AutoTest extends OpMode {
                 setActionState(-1);
                 break;
         }
-    }
+    }*/
 
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
@@ -436,11 +444,11 @@ public class AutoTest extends OpMode {
         autonomousPathUpdate();
     }
 
-    public void setActionState(int aState) {
+    /*public void setActionState(int aState) {
         actionState = aState;
         actionTimer.resetTimer();
         autonomousActionUpdate();
-    }
+    }*/
 
     public void setCaseState(int pos) {
         caseState = pos;
@@ -454,8 +462,8 @@ public class AutoTest extends OpMode {
         // These loop the actions and movement of the robot
         follower.update();
         autonomousPathUpdate();
-        autonomousActionUpdate();
-        autonomousCaseUpdate();
+        //autonomousActionUpdate();
+        //autonomousCaseUpdate();
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
@@ -463,7 +471,7 @@ public class AutoTest extends OpMode {
         //follower.setPose(tempPose);
 
         extension.update();
-        pivot.update();
+        //pivot.update();
         wrist.update();
 
         // Feedback to Driver Hub
@@ -529,8 +537,15 @@ public class AutoTest extends OpMode {
         Put camera/sensor initialization that needs to be looped in here
          */
 
+        //Initialization movements
+        //pivot.setkP("Normal");
+        //pivot.setPos("Start");
+        //wrist.setBicepPos("Init");
+        //wrist.setForearmPos("Init");
+        //wrist.setRotationPos(0);
+
         // After 4 Seconds, Robot Initialization is complete
-        if (opmodeTimer.getElapsedTimeSeconds() > 4) {
+        if (opmodeTimer.getElapsedTimeSeconds() > 3) {
             telemetry.addData("Init", "Finished");
         }
     }
@@ -541,8 +556,10 @@ public class AutoTest extends OpMode {
     public void start(){
         buildPaths();
         opmodeTimer.resetTimer();
-        setPathState(10);
-        setActionState(0);
+        //setCaseState(0);
+        wrist.setRotationPos(1);
+        setPathState(5);
+        //setActionState(0);
     }
 
     /** Stops robot and saves ending robot position for field centric TeleOp **/
@@ -558,22 +575,22 @@ public class AutoTest extends OpMode {
                 pivot.setPos("Idle");
                 pivot.setkP("Normal");
                 extension.setPos("Idle");
-                wrist.setBicepPos("Idle");
-                wrist.setForearmPos("Idle");
+                wrist.setBicepPos("Auton Idle");
+                wrist.setForearmPos("Auton Idle");
                 break;
             case 1: // Placing Specimen
                 pivot.setPos("Lift");
                 pivot.setkP("Extended");
-                extension.setPos("Retract");
+                extension.setPos("Idle");
                 wrist.setBicepPos("Basket");
                 wrist.setForearmPos("Basket");
                 break;
             case 2: // Picking up from observation zone
                 pivot.setPos("Start");
                 pivot.setkP("Normal");
-                extension.setPos("Intake");
+                extension.setPos("Idle");
                 wrist.setBicepPos("Basket");
-                wrist.setForearmPos("Basket");
+                wrist.setForearmPos("Idle");
                 break;
         }
 

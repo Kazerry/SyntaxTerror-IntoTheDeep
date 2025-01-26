@@ -1,5 +1,7 @@
 package OpModes;
 
+import static autoModes.AutoTest.parkPose;
+import static autoModes.AutoTest.parkTimer;
 import static config.localization.Limelight.LX;
 import static config.localization.Limelight.LY;
 import static config.localization.Limelight.fiducialResults;
@@ -8,6 +10,8 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.acmerobotics.dashboard.config.Config;
+
+import config.RobotConstants;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.Pivot;
@@ -19,6 +23,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -58,23 +63,23 @@ public class SubsystemTest extends OpMode {
 
     public static double subP, subI, subD, subF;
     public static double spP, spI, spD, spF;
-    public static double flip1pos1 = 0.5;
-    public static double flip2pos1 = 0.5;
-    public static double flip1pos2 = 0.6;
-    public static double flip2pos2 = 0.4;
 
-    private Servo flip1;
-    private Servo flip2;
     private Servo bicepLeft;
     private Servo bicepRight;
     private Servo forearm;
     private Servo rotation;
+    private Servo clawServo;
 
     @Override
     public void init() {
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        /*if (parkTimer.getElapsedTimeSeconds() < 40) {
+            startPose = parkPose;
+        } else {
+            startPose = new Pose(0,0,0);
+        }*/
         follower.setStartingPose(startPose);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -84,13 +89,11 @@ public class SubsystemTest extends OpMode {
         leftPivot = hardwareMap.get(DcMotorEx.class, "leftPivot");
         extLimit = hardwareMap.get(TouchSensor.class, "extLimit");
 
-        //Servo clawServo = hardwareMap.get(Servo.class, "Cservo");
-        flip1 = hardwareMap.get(Servo.class, "flip1");
-        flip2 = hardwareMap.get(Servo.class, "flip2");
         bicepLeft = hardwareMap.get(Servo.class, "bicepLeft");
         bicepRight = hardwareMap.get(Servo.class, "bicepRight");
         rotation = hardwareMap.get(Servo.class, "rotation");
         forearm = hardwareMap.get(Servo.class, "forearm");
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
         //ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
 
         leftPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -122,6 +125,22 @@ public class SubsystemTest extends OpMode {
         follower.setMaxPower(1);
     }
 
+    @Override
+    public void init_loop(){
+        //Initialization movements
+        //pivot.setkP("Normal");
+        //pivot.setPos("Start");
+        wrist.setBicepPos("Init");
+        wrist.setForearmPos("Init");
+        wrist.setRotationPos(0);
+        telemetry.addData("bicepLeft",bicepLeft.getPosition());
+        telemetry.addData("bicepRight",bicepRight.getPosition());
+        telemetry.addData("forearm",forearm.getPosition());
+        telemetry.addLine("init_loop finished");
+        telemetry.update();
+        wrist.update();
+    }
+
     /** This method is called once at the start of the OpMode. **/
     @Override
     public void start() {
@@ -139,35 +158,68 @@ public class SubsystemTest extends OpMode {
 
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
-        kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
-        Pose tempPose = kalmanFuse.getFusedPose();
+        //kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
+        //Pose tempPose = kalmanFuse.getFusedPose();
         //follower.setPose(tempPose);
 
         // Manual controls for claw behavior
-        if (gamepad1.x) {
-            extension.setPos("Idle");
+       if (gamepad1.dpad_up) {
+            clawServo.setPosition(RobotConstants.openClaw);
+        }
+        if (gamepad1.dpad_down) {
+            clawServo.setPosition(RobotConstants.closeClaw);
+        }
+
+        /*if (gamepad1.x) {
+            // Sample Intake: Down, Unextended
+            setPositions(1);
         }
         if (gamepad1.y) {
-            extension.setPos("Intake");
+            // Sample Extend
+            setPositions(2);
         }
 
-        if(gamepad1.dpad_up){
-            flip1.setPosition(flip1pos1);
-            flip2.setPosition(flip2pos1);
-        };
-
-        if(gamepad1.dpad_down){
-            flip1.setPosition(flip1pos2);
-            flip2.setPosition(flip2pos2);
-        };
+        if (gamepad1.right_trigger > 0.5) {
+            //Flip Down
+            setPositions(3);
+        }
+        if (gamepad1.left_trigger > 0.5) {
+            //Flip Up
+            setPositions(4); //Case 7 is highest
+        }
 
        if(gamepad1.a){
+           setPositions(5);
+        }
+        if(gamepad1.b){
+            setPositions(6);
+        }
+        if(gamepad1.left_bumper){
+            setPositions(7);
+        }*/
+        if (gamepad1.x) {
+            pivot.setkP("Normal");
+            pivot.setPos("Start");
+        }
+        if (gamepad1.y) {
+            pivot.setkP("Normal");
+            pivot.setPos("Idle");
+        }
+        if (gamepad1.left_bumper) {
             pivot.setkP("Normal");
             pivot.setPos("Down");
         }
-        if(gamepad1.b){
-            pivot.setkP("Normal");
-            pivot.setPos("Start");
+        if (gamepad1.right_trigger > 0.5) {
+            wrist.setRotationPos(0); //0
+        }
+        if (gamepad1.left_trigger > 0.5) {
+            wrist.setRotationPos(1); //0.65
+        }
+        if (gamepad1.a) {
+            wrist.setForearmPos("Intake"); //0.4
+        }
+        if (gamepad1.b) {
+            wrist.setForearmPos("Basket"); //0.6
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before
@@ -187,11 +239,9 @@ public class SubsystemTest extends OpMode {
         telemetry.addData("headingDeg", follower.getPose().getHeading());
         telemetry.addData("LLx", LX);
         telemetry.addData("LLy", LY);
-        telemetry.addData("Fx", tempPose.getX());
-        telemetry.addData("Fy", tempPose.getY());
-        telemetry.addData("FHeadingDeg", tempPose.getHeading());
-        //telemetry.addData("flip 1 pos", flip1pos1);
-        //telemetry.addData("flip 2 pos", flip2pos1);
+        telemetry.addData("bicepRight", bicepRight.getPosition());
+        telemetry.addData("bicepLeft", bicepLeft.getPosition());
+        telemetry.addData("clawServo", clawServo.getPosition());
         telemetry.addData("rightExtension", rightExtension.getCurrentPosition());
         telemetry.addData("leftExtension", leftExtension.getCurrentPosition());
         telemetry.addData("rightPivot", rightPivot.getCurrentPosition());
@@ -211,44 +261,44 @@ public class SubsystemTest extends OpMode {
                     pivot.setPos("Idle");
                     pivot.setkP("Normal");
                     extension.setPos("Idle");
-                    wrist.setBicepPos("Idle");
                     wrist.setForearmPos("Idle");
+                    wrist.setBicepPos("Idle");
                     break;
                 case 1: // Sample Intake: Down, Unextended
                     pivot.setPos("Down");
                     pivot.setkP("Normal");
                     extension.setPos("Idle");
-                    wrist.setBicepPos("Idle");
                     wrist.setForearmPos("Idle");
+                    wrist.setBicepPos("Idle");
 
                     break;
                 case 2: // Sample Extend
                     pivot.setPos("Down");
                     pivot.setkP("Extended");
                     extension.setPos("Intake");
-                    wrist.setBicepPos("Idle");
                     wrist.setForearmPos("Idle");
+                    wrist.setBicepPos("Idle");
                     break;
                 case 3: // Flip Down
                     pivot.setPos("Down");
                     pivot.setkP("Extended");
                     extension.setPos("Intake");
-                    wrist.setBicepPos("Intake");
                     wrist.setForearmPos("Intake");
+                    wrist.setBicepPos("Intake");
                     break;
                 case 4: // Flip Up
                     pivot.setPos("Down");
                     pivot.setkP("Extended");
                     extension.setPos("Intake");
-                    wrist.setBicepPos("Idle");
                     wrist.setForearmPos("Idle");
+                    wrist.setBicepPos("Idle");
                     break;
                 case 5: // Pullout
                     pivot.setPos("Down");
                     pivot.setkP("Normal");
                     extension.setPos("Idle");
-                    wrist.setBicepPos("Idle");
                     wrist.setForearmPos("Idle");
+                    wrist.setBicepPos("Idle");
                     wrist.setRotationPos(0);
                     break;
                 case 6: // Idle

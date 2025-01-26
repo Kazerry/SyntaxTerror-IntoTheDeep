@@ -9,7 +9,9 @@ import java.util.HashMap;
 public class Wrist {
 
     private Servo rotation, forearm, bicepLeft, bicepRight;
-
+    public static double bIntake= 0.0, bBasket = 0.15, bIdle = 0.25, bStart = 0.8,
+            bMiddle = 0.5, autonIdle = 0.2, fIntake = 0.4, fBasket = 0.6, fIdle = 0.5, fStart = 0.05,
+    fAutonIdle = 0.5, fInit = 0.5; //fIntake = 1.0, fBasket = 0.3
     private double bicepPos, forearmPos, rotationPos;
 
     public static HashMap<String, Double> bicepPositions = new HashMap<String, Double>();
@@ -23,28 +25,32 @@ public class Wrist {
         this.forearm = forearm;
         this.rotation = rotation;
 
-        bicepPositions.put("Intake",      0.15);
-        bicepPositions.put("Basket",      0.25);
-        bicepPositions.put("Idle",        0.25);
-        bicepPositions.put("Start",       0.8);
-        bicepPositions.put("Auton Idle",  0.2);
+        bicepPositions.put("Intake",      bIntake);
+        bicepPositions.put("Basket",      bBasket);
+        bicepPositions.put("Idle",        bIdle);
+        bicepPositions.put("Start",       bStart);
+        bicepPositions.put("Auton Idle",  autonIdle);
+        bicepPositions.put("Middle",  bMiddle);
+        bicepPositions.put("Init",      0.0); //Middle
 
-        forearmPositions.put("Intake",      1.0);
-        forearmPositions.put("Basket",      0.3);
-        forearmPositions.put("Idle",        0.5);
-        forearmPositions.put("Start",       0.05);
-        forearmPositions.put("Auton Idle",  0.5);
+        //Forearm 0.4 goes towards the back 0.6 goes towards the front
+        forearmPositions.put("Intake",      fIntake);
+        forearmPositions.put("Basket",      fBasket);
+        forearmPositions.put("Idle",        fIdle); //Middle
+        forearmPositions.put("Start",       fStart);
+        forearmPositions.put("Auton Idle",  fAutonIdle);
+        forearmPositions.put("Init",      fInit);
 
-        rotationPositions[0] = 0.07;
-        rotationPositions[1] = 0.34;
-        rotationPositions[2] = 0.61;
+        rotationPositions[0] = 0; //Horizontal
+        rotationPositions[1] = 0.65;
+        rotationPositions[2] = 0.8; //Vertical
         rotationPositions[3] = 0.88;
     }
 
     public void update()
     {
         // For opposed servos, one gets the position, the other gets (1 - position)
-        bicepLeft.setPosition(bicepPos);
+        bicepLeft.setPosition(bicepPos + 0);
         bicepRight.setPosition(1 - bicepPos);  // Inverse movement
         forearm.setPosition(forearmPos);
         rotation.setPosition(rotationPos);

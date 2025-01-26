@@ -1,5 +1,6 @@
 package config.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import config.RobotConstants;
 
+@Config
 public class Extension {
 
     private DcMotorEx leftExtension, rightExtension;
@@ -19,7 +21,7 @@ public class Extension {
     private int pos;
     private int curLeft;
 
-    public static double kP = 0.01, kI = 0, kD = 0;
+    public static double kP = 0.0025, kI = 0, kD = 0;
     PIDController pidController = new PIDController(kP, kI, kD);
     public static int PIDTol = 10, PIDThresh = 10;
 
@@ -40,11 +42,11 @@ public class Extension {
 
         pidController.setTolerance(PIDTol);
 
-        positions.put("Intake", 1000);
-        positions.put("Idle",   50);
-        positions.put("Basket", 2300);
-        positions.put("Hang", 2500);
-        positions.put("Retract", 1400);
+        positions.put("Intake", -1000);
+        positions.put("Idle",   -50);
+        positions.put("Basket", -2300);
+        positions.put("Hang", -2500);
+        positions.put("Retract", -1400);
     }
 
     public void update()
