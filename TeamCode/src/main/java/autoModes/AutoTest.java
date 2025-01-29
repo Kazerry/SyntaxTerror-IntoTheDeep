@@ -57,7 +57,7 @@ public class AutoTest extends OpMode {
     private Limelight LimeInit;
 
     //Start pose
-    private Pose startPose = new Pose(9.3, 61.4, 0); //9.3 85.3 is left blue
+    private Pose startPose = new Pose(7.75, 62.8, 0); //9.3 85.3 is left blue
     public static Pose parkPose;
 
     /**Robot width and height were set to 19 and 18 respectively
@@ -69,7 +69,7 @@ public class AutoTest extends OpMode {
     private Pose rightSub = new Pose(60,45,Math.toRadians(90));
     private Pose leftBlueSub = new Pose(36,76,Math.toRadians(0));
     private Pose observationBlue = new Pose(18.4,34.7,Math.toRadians(235));
-    private Pose rightBlueSub = new Pose(36,67,Math.toRadians(0));
+    private Pose rightBlueSub = new Pose(32,62.8,Math.toRadians(0));
     private Pose firstSpecimen = new Pose(59.7,25,Math.toRadians(0));
     private Pose secondSpecimen = new Pose(59.7,15,Math.toRadians(0));
     private Pose thirdSpecimen = new Pose(59.7,9.3,Math.toRadians(0));
@@ -237,20 +237,17 @@ public class AutoTest extends OpMode {
     //Cases for larger paths
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 5:
-                    follower.followPath(rightMover, true);
-                    setPathState(-1);
             case 10:
                 //Line1
                 //close claw
                 //clawServo.setPosition(RobotConstants.closeClaw);
-                if(pathTimer.getElapsedTimeSeconds() > 1) {
+                //if(pathTimer.getElapsedTimeSeconds() > 1) {
                     //setCaseState(1); // Place
-                    follower.followPath(rightMove, true);
+                follower.followPath(rightMove);
                     //open claw
                     //clawServo.setPosition(RobotConstants.openClaw);
-                    setPathState(11);
-                }
+                    //setPathState(11);
+                //}
                 break;
             case 11:
                 if (pathTimer.getElapsedTimeSeconds() > 3 && follower.atParametricEnd()) {
@@ -471,11 +468,12 @@ public class AutoTest extends OpMode {
         //follower.setPose(tempPose);
 
         extension.update();
-        //pivot.update();
+        pivot.update();
         wrist.update();
 
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
+        telemetry.addData("pathTimer",pathTimer.getElapsedTimeSeconds());
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
@@ -517,6 +515,10 @@ public class AutoTest extends OpMode {
         leftExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        extension = new Extension(leftExtension, rightExtension, extLimit); //River Extension
+        pivot = new Pivot(hardwareMap, rightPivot, leftPivot); //River Pivot
+        wrist = new Wrist(bicepLeft, bicepRight, forearm, rotation); //River Wrist
+
         pathTimer = new Timer();
         actionTimer = new Timer();
         opmodeTimer = new Timer();
@@ -526,23 +528,27 @@ public class AutoTest extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        follower.setMaxPower(-0.75); // Test this
+        follower.setMaxPower(0.8); // Test this
         buildPaths();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop(){
-        /*
-        Put camera/sensor initialization that needs to be looped in here
-         */
-
         //Initialization movements
-        //pivot.setkP("Normal");
-        //pivot.setPos("Start");
-        //wrist.setBicepPos("Init");
-        //wrist.setForearmPos("Init");
-        //wrist.setRotationPos(0);
+        clawServo.setPosition(RobotConstants.closeClaw);
+        pivot.setkP("Normal");
+        pivot.setPos("Start");
+        wrist.setBicepPos("Start");
+        wrist.setForearmPos("Basket");
+        wrist.setRotationPos(0);
+        telemetry.addData("bicepLeft",bicepLeft.getPosition());
+        telemetry.addData("bicepRight",bicepRight.getPosition());
+        telemetry.addData("forearm",forearm.getPosition());
+        telemetry.addLine("init_loop finished");
+        telemetry.update();
+        wrist.update();
+        pivot.update();
 
         // After 4 Seconds, Robot Initialization is complete
         if (opmodeTimer.getElapsedTimeSeconds() > 3) {
@@ -557,8 +563,7 @@ public class AutoTest extends OpMode {
         buildPaths();
         opmodeTimer.resetTimer();
         //setCaseState(0);
-        wrist.setRotationPos(1);
-        setPathState(5);
+        setPathState(10);
         //setActionState(0);
     }
 

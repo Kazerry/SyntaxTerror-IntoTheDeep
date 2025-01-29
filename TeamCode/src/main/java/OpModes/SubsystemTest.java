@@ -63,6 +63,7 @@ public class SubsystemTest extends OpMode {
 
     public static double subP, subI, subD, subF;
     public static double spP, spI, spD, spF;
+    public static double testPos = 0.6;
 
     private Servo bicepLeft;
     private Servo bicepRight;
@@ -153,7 +154,7 @@ public class SubsystemTest extends OpMode {
         // Update subsystems
         //claw.manageClaw();
         extension.update();
-        pivot.update();
+        //pivot.update();
         wrist.update();
 
 
@@ -220,6 +221,12 @@ public class SubsystemTest extends OpMode {
         }
         if (gamepad1.b) {
             wrist.setForearmPos("Basket"); //0.6
+        }
+        if (gamepad2.left_bumper) {
+            wrist.setBicepPos("Middle"); //0.8
+        }
+        if (gamepad2.right_bumper) {
+            wrist.setBicepPos("Start"); //1
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before

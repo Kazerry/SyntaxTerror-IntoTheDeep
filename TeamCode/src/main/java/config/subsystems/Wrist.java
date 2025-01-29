@@ -9,9 +9,9 @@ import java.util.HashMap;
 public class Wrist {
 
     private Servo rotation, forearm, bicepLeft, bicepRight;
-    public static double bIntake= 0.0, bBasket = 0.15, bIdle = 0.25, bStart = 0.8,
-            bMiddle = 0.5, autonIdle = 0.2, fIntake = 0.4, fBasket = 0.6, fIdle = 0.5, fStart = 0.05,
-    fAutonIdle = 0.5, fInit = 0.5; //fIntake = 1.0, fBasket = 0.3
+    public static double bIntake= 0.0, bBasket = 0.15, bIdle = 0.25, bStart = 0.7,
+            bMiddle = 0.8, autonIdle = 0.2, fIntake = 0.4, fBasket = 0.1, fIdle = 0.5, fStart = 0.05,
+    fAutonIdle = 0.5, fInit = 0.5; //fIntake = 1.0, fBasket = 0.3, bMiddle = 0.5 bStart = 0.8
     private double bicepPos, forearmPos, rotationPos;
 
     public static HashMap<String, Double> bicepPositions = new HashMap<String, Double>();
@@ -31,7 +31,7 @@ public class Wrist {
         bicepPositions.put("Start",       bStart);
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
-        bicepPositions.put("Init",      0.0); //Middle
+        bicepPositions.put("Init",      0.5); //Middle
 
         //Forearm 0.4 goes towards the back 0.6 goes towards the front
         forearmPositions.put("Intake",      fIntake);
