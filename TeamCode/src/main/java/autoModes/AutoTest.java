@@ -467,7 +467,7 @@ public class AutoTest extends OpMode {
         Pose tempPose = kalmanFuse.getFusedPose();
         //follower.setPose(tempPose);
 
-        extension.update();
+        //extension.update();
         pivot.update();
         wrist.update();
 
@@ -535,20 +535,18 @@ public class AutoTest extends OpMode {
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop(){
-        //Initialization movements
-        clawServo.setPosition(RobotConstants.closeClaw);
-        pivot.setkP("Normal");
-        pivot.setPos("Start");
-        wrist.setBicepPos("Start");
-        wrist.setForearmPos("Basket");
-        wrist.setRotationPos(0);
+        //Initialization
+        setCaseState(-2);
         telemetry.addData("bicepLeft",bicepLeft.getPosition());
         telemetry.addData("bicepRight",bicepRight.getPosition());
         telemetry.addData("forearm",forearm.getPosition());
+        telemetry.addData("leftPivot",leftPivot.getCurrentPosition());
+        telemetry.addData("rightPivot",rightPivot.getCurrentPosition());
         telemetry.addLine("init_loop finished");
         telemetry.update();
         wrist.update();
         pivot.update();
+        autonomousCaseUpdate();
 
         // After 4 Seconds, Robot Initialization is complete
         if (opmodeTimer.getElapsedTimeSeconds() > 3) {
@@ -576,24 +574,37 @@ public class AutoTest extends OpMode {
 
     public void autonomousCaseUpdate()  {
         switch (caseState) {
+            case -2: // Initialization movements
+                pivot.setkP("Normal");
+                pivot.setPos("Init");
+                wrist.setForearmPos("Init");
+                wrist.setBicepPos("Init");
+                wrist.setRotationPos(0);
+                clawServo.setPosition(RobotConstants.closeClaw);
+                break;
             case 0: // Idle
                 pivot.setPos("Idle");
                 pivot.setkP("Normal");
-                extension.setPos("Idle");
+                //extension.setPos("Idle");
                 wrist.setBicepPos("Auton Idle");
                 wrist.setForearmPos("Auton Idle");
                 break;
-            case 1: // Placing Specimen
-                pivot.setPos("Lift");
-                pivot.setkP("Extended");
-                extension.setPos("Idle");
-                wrist.setBicepPos("Basket");
-                wrist.setForearmPos("Basket");
+            case 1: // Under Specimen
+                pivot.setkP("Normal");
+                pivot.setPos("Start");
+                wrist.setForearmPos("Start");
+                wrist.setBicepPos("Start");
                 break;
-            case 2: // Picking up from observation zone
+            case 2: // Placing Specimen
+                pivot.setkP("Normal");
+                pivot.setPos("Start");
+                wrist.setForearmPos("Specimen");
+                wrist.setBicepPos("Start");
+                break;
+            case 3: // Picking up from observation zone
                 pivot.setPos("Start");
                 pivot.setkP("Normal");
-                extension.setPos("Idle");
+                //extension.setPos("Idle");
                 wrist.setBicepPos("Basket");
                 wrist.setForearmPos("Idle");
                 break;

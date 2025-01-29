@@ -129,17 +129,21 @@ public class SubsystemTest extends OpMode {
     @Override
     public void init_loop(){
         //Initialization movements
-        //pivot.setkP("Normal");
-        //pivot.setPos("Start");
-        wrist.setBicepPos("Init");
-        wrist.setForearmPos("Init");
+        pivot.setkP("Normal");
+        pivot.setPos("Start");
+        wrist.setForearmPos("Specimen");
+        wrist.setBicepPos("Start");
         wrist.setRotationPos(0);
+        clawServo.setPosition(RobotConstants.closeClaw);
         telemetry.addData("bicepLeft",bicepLeft.getPosition());
         telemetry.addData("bicepRight",bicepRight.getPosition());
         telemetry.addData("forearm",forearm.getPosition());
+        telemetry.addData("leftPivot",leftPivot.getCurrentPosition());
+        telemetry.addData("rightPivot",rightPivot.getCurrentPosition());
         telemetry.addLine("init_loop finished");
         telemetry.update();
         wrist.update();
+        pivot.update();
     }
 
     /** This method is called once at the start of the OpMode. **/
@@ -154,7 +158,7 @@ public class SubsystemTest extends OpMode {
         // Update subsystems
         //claw.manageClaw();
         extension.update();
-        //pivot.update();
+        pivot.update();
         wrist.update();
 
 
@@ -220,13 +224,13 @@ public class SubsystemTest extends OpMode {
             wrist.setForearmPos("Intake"); //0.4
         }
         if (gamepad1.b) {
-            wrist.setForearmPos("Basket"); //0.6
+            wrist.setForearmPos("Basket"); //0.1
         }
         if (gamepad2.left_bumper) {
-            wrist.setBicepPos("Middle"); //0.8
+            wrist.setBicepPos("Middle"); //0.5
         }
         if (gamepad2.right_bumper) {
-            wrist.setBicepPos("Start"); //1
+            wrist.setBicepPos("Start"); //0.3
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before

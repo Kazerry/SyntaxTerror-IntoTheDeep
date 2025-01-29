@@ -26,9 +26,10 @@ public class Pivot {
     public static int Down = 0;
     public static int Lift = 330;
     public static int Hang = 310;
-    public static int Start = 200; //real 200
+    public static int Start = 235;
     public static int Basket = 315;
     public static int Idle = 315;
+    public static int PInit = 450;
 
 
     private int pos;
@@ -60,8 +61,6 @@ public class Pivot {
         rightPivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Reset encoders once at initialization
-        leftPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -73,6 +72,7 @@ public class Pivot {
         positions.put("Start", Start);
         positions.put("Hang", Hang);
         positions.put("Lift", Lift);
+        positions.put("Init", PInit);
 
         kPs.put("Normal", kP);
         kPs.put("Extended", extendedKp);
