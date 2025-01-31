@@ -41,7 +41,7 @@ public class Wrist {
         forearmPositions.put("Start",       fStart);
         forearmPositions.put("Auton Idle",  fAutonIdle);
         forearmPositions.put("Init",      fInit);
-        forearmPositions.put("Specimen",      0.50);
+        forearmPositions.put("Specimen",      0.40);
         forearmPositions.put("Middle",      0.50);
         forearmPositions.put("Grab",      0.625);
 
