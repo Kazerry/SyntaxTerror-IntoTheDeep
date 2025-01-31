@@ -145,7 +145,7 @@ public class SubsystemTest extends OpMode {
     public void loop() {
         // Update subsystems
         //claw.manageClaw();
-        //extension.update();
+        extension.update();
         pivot.update();
         wrist.update();
 
@@ -163,53 +163,28 @@ public class SubsystemTest extends OpMode {
             clawServo.setPosition(RobotConstants.closeClaw);
         }
 
-        /*if (gamepad1.x) {
-            // Sample Intake: Down, Unextended
-            setPositions(1);
-        }
-        if (gamepad1.y) {
-            // Sample Extend
-            setPositions(2);
-        }
-
-        if (gamepad1.right_trigger > 0.5) {
-            //Flip Down
-            setPositions(3);
-        }
-        if (gamepad1.left_trigger > 0.5) {
-            //Flip Up
-            setPositions(4); //Case 7 is highest
-        }
-
-       if(gamepad1.a){
-           setPositions(5);
-        }
-        if(gamepad1.b){
-            setPositions(6);
-        }
-        if(gamepad1.left_bumper){
-            setPositions(7);
-        }*/
-        if (gamepad1.x) { //Under specimen
+        if (gamepad1.x) { //Placing
             pivot.setkP("Normal");
             pivot.setPos("Start");
-            wrist.setForearmPos("Start");
-            wrist.setBicepPos("Start");
+            wrist.setForearmPos("Place");
+            wrist.setBicepPos("Place");
+            extension.setPos("Place");
         }
-        if (gamepad1.y) { //Specimen place
+        if (gamepad1.y) { //Drop to place
             pivot.setkP("Normal");
             pivot.setPos("Start");
-            wrist.setForearmPos("Specimen");
-            wrist.setBicepPos("Start");
+            wrist.setForearmPos("downPlace");
+            wrist.setBicepPos("downPlace");
+            extension.setPos("downPlace");
             clawServo.setPosition(RobotConstants.closeClaw);
         }
-        if (gamepad1.left_bumper) { //Grab test
+        if (gamepad1.left_bumper) { //Grab from wall
             pivot.setkP("Normal");
-            pivot.setPos("Down");
-            wrist.setForearmPos("Grab");
-            wrist.setBicepPos("Grab");
+            pivot.setPos("gPlace");
+            wrist.setForearmPos("gPlace");
+            wrist.setBicepPos("gPlace");
             wrist.setRotationPos(0);
-            clawServo.setPosition(RobotConstants.openClaw);
+            extension.setPos("Idle");
         }
         if (gamepad1.right_trigger > 0.5) {
             wrist.setRotationPos(0); //0
@@ -217,17 +192,21 @@ public class SubsystemTest extends OpMode {
         if (gamepad1.left_trigger > 0.5) {
             wrist.setRotationPos(1); //0.65
         }
-        if (gamepad1.a) {
-            wrist.setForearmPos("Intake"); //0.4
+        if (gamepad1.a) { //Grab from floor
+            pivot.setkP("Normal");
+            pivot.setPos("Grab");
+            wrist.setForearmPos("Grab");
+            wrist.setBicepPos("Grab");
+            wrist.setRotationPos(0);
+            extension.setPos("Idle");
         }
-        if (gamepad1.b) {
-            wrist.setForearmPos("Basket"); //0.1
-        }
-        if (gamepad2.left_bumper) {
-            wrist.setBicepPos("Middle"); //0.5
-        }
-        if (gamepad2.right_bumper) {
-            wrist.setBicepPos("Start"); //0.3
+        if (gamepad1.b) { //get under bars for grab
+            pivot.setkP("Normal");
+            pivot.setPos("Grab");
+            wrist.setForearmPos("gUP");
+            wrist.setBicepPos("Grab");
+            wrist.setRotationPos(0);
+            extension.setPos("Idle");
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before
