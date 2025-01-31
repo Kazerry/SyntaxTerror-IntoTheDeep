@@ -30,6 +30,7 @@ public class Pivot {
     public static int Basket = 315;
     public static int Idle = 315;
     public static int PInit = 450;
+    public static int PGrab = 100;
 
 
     private int pos;
@@ -73,6 +74,8 @@ public class Pivot {
         positions.put("Hang", Hang);
         positions.put("Lift", Lift);
         positions.put("Init", PInit);
+        positions.put("Grab", PGrab);
+        positions.put("gPlace", 200);
 
         kPs.put("Normal", kP);
         kPs.put("Extended", extendedKp);

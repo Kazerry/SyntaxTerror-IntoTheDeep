@@ -33,7 +33,7 @@ import pedroPathing.constants.LConstants;
 public class AutoTest extends OpMode {
 
     private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private Timer pathTimer, actionTimer, opmodeTimer, initTimer;
     public static Timer parkTimer;
     private int pathState, actionState, caseState;
     private String navigation;
@@ -69,15 +69,15 @@ public class AutoTest extends OpMode {
     private Pose rightSub = new Pose(60,45,Math.toRadians(90));
     private Pose leftBlueSub = new Pose(36,76,Math.toRadians(0));
     private Pose observationBlue = new Pose(18.4,34.7,Math.toRadians(235));
-    private Pose rightBlueSub = new Pose(33,62.8,Math.toRadians(0));
+    private Pose rightBlueSub = new Pose(34,62.8,Math.toRadians(0));
     private Pose firstSpecimen = new Pose(59.7,25,Math.toRadians(0));
     private Pose secondSpecimen = new Pose(59.7,15,Math.toRadians(0));
-    private Pose thirdSpecimen = new Pose(59.7,9.3,Math.toRadians(0));
+    private Pose thirdSpecimen = new Pose(59.7,8.35,Math.toRadians(0));
     private Pose firstPlace = new Pose(36,69.5,Math.toRadians(0));
     private Pose secondPlace = new Pose(36,72,Math.toRadians(0));
     private Pose thirdPlace = new Pose(36,74.5,Math.toRadians(0));
     private Pose fourthPlace = new Pose(36,77,Math.toRadians(0));
-    private Pose grabPlace = new Pose(11.9,24,Math.toRadians(0));
+    private Pose grabPlace = new Pose(19.5,23,Math.toRadians(0));
 
 
     private PathChain initialRightSub, rightMove, specimenCurve,
@@ -104,7 +104,7 @@ public class AutoTest extends OpMode {
                 .build();
         //Backup Line
         Backup = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(rightBlueSub), new Point(rightBlueSub.getX() -4,
+                .addPath(new BezierLine(new Point(rightBlueSub), new Point(rightBlueSub.getX() -4.5,
                         rightBlueSub.getY())))
                 .setConstantHeadingInterpolation(0)
                 .setPathEndTimeoutConstraint(100)
@@ -112,7 +112,7 @@ public class AutoTest extends OpMode {
 
         //Line2
         specimenCurve = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(rightBlueSub.getX() -4,
+                .addPath(new BezierCurve(new Point(rightBlueSub.getX() -4.5,
                         rightBlueSub.getY()), new Point(26.700, 32.800),
                         new Point(59.700, 32.800)))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
@@ -151,7 +151,7 @@ public class AutoTest extends OpMode {
                         new Point(firstSpecimen),
                         new Point(secondSpecimen)
                 ))
-                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .setPathEndTimeoutConstraint(0.5)
                 .build();
        //Line7
@@ -178,7 +178,7 @@ public class AutoTest extends OpMode {
         //Line10
         observationPush3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(thirdSpecimen),
-                        new Point(19.7, 9.3)))
+                        new Point(19.7, 8.35)))
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .setPathEndTimeoutConstraint(0.5)
                 .build();
@@ -250,114 +250,124 @@ public class AutoTest extends OpMode {
                 follower.setMaxPower(0.8);
                 setCaseState(1); //Under Specimen
                 follower.followPath(rightMove);
-                if(pathTimer.getElapsedTimeSeconds() > 3) {
+                if(pathTimer.getElapsedTimeSeconds() > 2.5) {
                     setCaseState(2); //Place Specimen
                     setPathState(11);
                 }
                 break;
             case 11:
-                    //Backup Line
-                follower.setMaxPower(0.2);
+                //Backup Line
+                follower.setMaxPower(0.4);
+                if(pathTimer.getElapsedTimeSeconds() > 0.4) {
                     follower.followPath(Backup);
-                    if (pathTimer.getElapsedTimeSeconds() > 1){
-                        clawServo.setPosition(RobotConstants.openClaw);
-                        setPathState(12);
                 }
+                if (pathTimer.getElapsedTimeSeconds() > 1.3){
+                    clawServo.setPosition(RobotConstants.openClaw);
+                    setPathState(12);
+                }
+                break;
             case 12:
-                if (pathTimer.getElapsedTimeSeconds() > 1.5 && follower.atParametricEnd()) {
+                if (follower.atParametricEnd()) {
                     //Line2
                     follower.setMaxPower(0.8);
                     setCaseState(0);
                     follower.followPath(specimenCurve);
-                    //setPathState(12);
-                }
-                break;
-            case 120:
-                if (follower.atParametricEnd()) {
-                    //Line3
-                follower.followPath(observationDown1);
-                setPathState(13);
+                    setPathState(13);
                 }
                 break;
             case 13:
                 if (follower.atParametricEnd()) {
-                    //Line4
-                    follower.followPath(observationPush1);
-                    setPathState(14);
+                    //Line3
+                follower.followPath(observationDown1);
+                setPathState(14);
                 }
                 break;
             case 14:
                 if (follower.atParametricEnd()) {
-                    //Line5
-                    follower.followPath(observationBack1);
+                    //Line4
+                    follower.followPath(observationPush1);
                     setPathState(15);
                 }
                 break;
             case 15:
                 if (follower.atParametricEnd()) {
-                    //Line6
-                    follower.followPath(observationDown2);
+                    //Line5
+                    follower.followPath(observationBack1);
                     setPathState(16);
                 }
                 break;
             case 16:
                 if (follower.atParametricEnd()) {
-                    //Line7
-                    follower.followPath(observationPush2);
+                    //Line6
+                    follower.followPath(observationDown2);
                     setPathState(17);
                 }
                 break;
             case 17:
                 if (follower.atParametricEnd()) {
-                    //Line8
-                    follower.followPath(observationBack2);
+                    //Line7
+                    follower.followPath(observationPush2);
                     setPathState(18);
                 }
                 break;
             case 18:
                 if (follower.atParametricEnd()) {
-                    //Line9
-                    follower.followPath(observationDown3);
+                    //Line8
+                    follower.followPath(observationBack2);
                     setPathState(19);
                 }
                 break;
             case 19:
                 if (follower.atParametricEnd()) {
-                    //Line10
-                    follower.followPath(observationPush3);
-                    //setPathState(20);
+                    //Line9
+                    follower.followPath(observationDown3);
+                    setPathState(20);
                 }
                 break;
             case 20:
                 if (follower.atParametricEnd()) {
-                    //Line11
-                    // setCaseState(2);
-                    follower.followPath(curveBack);
-                    //Close claw
-                    //clawServo.setPosition(RobotConstants.closeClaw);
-                    //We need to grab from observation zone
-                    //setPathState(21);
+                    //Line10
+                    follower.followPath(observationPush3);
+                    setPathState(21);
                 }
                 break;
             case 21:
-                if (pathTimer.getElapsedTimeSeconds() > 3 && follower.atParametricEnd()) {
+                if (follower.atParametricEnd()) {
+                    //Line11
+                    follower.setMaxPower(0.4);
+                    setCaseState(3);
+                    follower.followPath(curveBack);
+                    if(pathTimer.getElapsedTimeSeconds() > 4) {
+                        clawServo.setPosition(RobotConstants.closeClaw);
+                        //setPathState(22);
+                    }
+                }
+                break;
+            case 121:
+                if (follower.atParametricEnd()) {
                     //Line12
-                    //setCaseState(1);
-                    follower.followPath(place1);
+                    follower.setMaxPower(0.8);
+                    wrist.setBicepPos("Grab");
+                    if(pathTimer.getElapsedTimeSeconds() > 1){
+                        follower.followPath(place1);
+                        //setCaseState(5); //above Place
+                    }
                     if (follower.atParametricEnd()) {
-                        //open claw
-                        //clawServo.setPosition(RobotConstants.openClaw);
+                        //setCaseState(6); //below place
                         setPathState(22);
                     }
                 }
                 break;
             case 22:
-                if (follower.atParametricEnd()) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     //Line13
-                    //setCaseState(2);
+                    clawServo.setPosition(RobotConstants.openClaw);
+                    //setCaseState(5); //above place
                     follower.followPath(placeBack1);
+                    if(pathTimer.getElapsedTimeSeconds() > 2){
+                        //setCaseState(3); //Observation zone grab
+                    }
                     if (follower.atParametricEnd()) {
-                        //close claw
                         //clawServo.setPosition(RobotConstants.closeClaw);
                         setPathState(23);
                     }
@@ -366,11 +376,13 @@ public class AutoTest extends OpMode {
             case 23:
                 if (follower.atParametricEnd()) {
                     //Line14
-                    //setCaseState(1);
-                    follower.followPath(place2);
+                    wrist.setBicepPos("Grab");
+                    if(pathTimer.getElapsedTimeSeconds() > 1){
+                        follower.followPath(place2);
+                        //setCaseState(5); //above Place
+                    }
                     if (follower.atParametricEnd()) {
-                        //open claw
-                        //clawServo.setPosition(RobotConstants.openClaw);
+                        //setCaseState(6); //below place
                         setPathState(24);
                     }
                 }
@@ -378,10 +390,13 @@ public class AutoTest extends OpMode {
             case 24:
                 if (follower.atParametricEnd()) {
                     //Line15
-                    //setCaseState(2);
+                    clawServo.setPosition(RobotConstants.openClaw);
+                    //setCaseState(5); //above place
                     follower.followPath(placeBack2);
+                    if(pathTimer.getElapsedTimeSeconds() > 2){
+                        //setCaseState(3); //Observation zone grab
+                    }
                     if (follower.atParametricEnd()) {
-                        //close claw
                         //clawServo.setPosition(RobotConstants.closeClaw);
                         setPathState(25);
                     }
@@ -390,11 +405,13 @@ public class AutoTest extends OpMode {
             case 25:
                 if (follower.atParametricEnd()) {
                     //Line16
-                    //setActionState(1);
-                    follower.followPath(place3);
+                    wrist.setBicepPos("Grab");
+                    if(pathTimer.getElapsedTimeSeconds() > 1){
+                        follower.followPath(place3);
+                        //setCaseState(5); //above Place
+                    }
                     if (follower.atParametricEnd()) {
-                        //open claw
-                        //clawServo.setPosition(RobotConstants.openClaw);
+                        //setCaseState(6); //below place
                         setPathState(26);
                     }
                 }
@@ -402,10 +419,13 @@ public class AutoTest extends OpMode {
             case 26:
                 if (follower.atParametricEnd()) {
                     //Line17
-                    //setActionState(2);
+                    clawServo.setPosition(RobotConstants.openClaw);
+                    //setCaseState(5); //above place
                     follower.followPath(placeBack3);
+                    if(pathTimer.getElapsedTimeSeconds() > 2){
+                        //setCaseState(3); //Observation zone grab
+                    }
                     if (follower.atParametricEnd()) {
-                        //close claw
                         //clawServo.setPosition(RobotConstants.closeClaw);
                         setPathState(27);
                     }
@@ -414,12 +434,14 @@ public class AutoTest extends OpMode {
             case 27:
                 if (follower.atParametricEnd()) {
                     //Line18
-                    //setActionState(1);
-                    follower.followPath(place4);
+                    wrist.setBicepPos("Grab");
+                    if(pathTimer.getElapsedTimeSeconds() > 1){
+                        follower.followPath(place4);
+                        //setCaseState(5); //above Place
+                    }
                     if (follower.atParametricEnd()) {
-                        //open claw
-                        //clawServo.setPosition(RobotConstants.openClaw);
-                        setPathState(28);
+                        //setCaseState(6); //below place
+                        //setPathState(28);
                     }
                 }
                 break;
@@ -539,25 +561,37 @@ public class AutoTest extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         parkTimer = new Timer();
+        initTimer = new Timer();
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         follower.setMaxPower(0.8); // Test this
         buildPaths();
+        initTimer.resetTimer();
+
+        clawServo.setPosition(RobotConstants.closeClaw);
+        wrist.setForearmPos("Middle");
+        wrist.setBicepPos("Middle");
+        wrist.setRotationPos(0);
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop(){
         //Initialization
-        setCaseState(0);
+        if(initTimer.getElapsedTimeSeconds() > 1){
+            pivot.setkP("Normal");
+            pivot.setPos("Start");
+        }
+        if(initTimer.getElapsedTimeSeconds() > 2) {
+            setCaseState(0);
+            autonomousCaseUpdate();
+        }
         wrist.update();
         pivot.update();
-        autonomousCaseUpdate();
-
         // After 4 Seconds, Robot Initialization is complete
-        if (opmodeTimer.getElapsedTimeSeconds() > 3) {
+        if (opmodeTimer.getElapsedTimeSeconds() > 4) {
             telemetry.addData("bicepLeft",bicepLeft.getPosition());
             telemetry.addData("bicepRight",bicepRight.getPosition());
             telemetry.addData("forearm",forearm.getPosition());
@@ -606,14 +640,16 @@ public class AutoTest extends OpMode {
                 pivot.setkP("Normal");
                 pivot.setPos("Start");
                 wrist.setForearmPos("Specimen");
-                wrist.setBicepPos("Start");
+                wrist.setBicepPos("Specimen");
                 break;
             case 3: // Picking up from observation zone
-                pivot.setPos("Start");
                 pivot.setkP("Normal");
-                //extension.setPos("Idle");
-                wrist.setBicepPos("Basket");
-                wrist.setForearmPos("Idle");
+                pivot.setPos("gPlace");
+                wrist.setForearmPos("gPlace");
+                wrist.setBicepPos("gPlace");
+                wrist.setRotationPos(0);
+                clawServo.setPosition(RobotConstants.openClaw);
+                extension.setPos("Idle");
                 break;
             case 4: // Middle
                 pivot.setPos("Idle");
@@ -621,6 +657,20 @@ public class AutoTest extends OpMode {
                 //extension.setPos("Idle");
                 wrist.setBicepPos("Auton Idle");
                 wrist.setForearmPos("Auton Idle");
+                break;
+            case 5: // Placing
+                pivot.setkP("Normal");
+                pivot.setPos("Start");
+                wrist.setForearmPos("Place");
+                wrist.setBicepPos("Place");
+                extension.setPos("Place");
+                break;
+            case 6: // Drop to Place
+                pivot.setkP("Normal");
+                pivot.setPos("Start");
+                wrist.setForearmPos("downPlace");
+                wrist.setBicepPos("downPlace");
+                extension.setPos("downPlace");
                 break;
         }
 
