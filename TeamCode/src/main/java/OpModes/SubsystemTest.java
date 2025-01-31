@@ -128,22 +128,10 @@ public class SubsystemTest extends OpMode {
 
     @Override
     public void init_loop(){
-        //Initialization movements
-        pivot.setkP("Normal");
-        pivot.setPos("Start");
-        wrist.setForearmPos("Specimen");
-        wrist.setBicepPos("Start");
-        wrist.setRotationPos(0);
-        clawServo.setPosition(RobotConstants.closeClaw);
-        telemetry.addData("bicepLeft",bicepLeft.getPosition());
-        telemetry.addData("bicepRight",bicepRight.getPosition());
-        telemetry.addData("forearm",forearm.getPosition());
-        telemetry.addData("leftPivot",leftPivot.getCurrentPosition());
-        telemetry.addData("rightPivot",rightPivot.getCurrentPosition());
-        telemetry.addLine("init_loop finished");
-        telemetry.update();
+        //Init movements if you want them
+        wrist.setBicepPos("Middle");
+        wrist.setForearmPos("Middle");
         wrist.update();
-        pivot.update();
     }
 
     /** This method is called once at the start of the OpMode. **/
@@ -157,7 +145,7 @@ public class SubsystemTest extends OpMode {
     public void loop() {
         // Update subsystems
         //claw.manageClaw();
-        extension.update();
+        //extension.update();
         pivot.update();
         wrist.update();
 
@@ -202,17 +190,26 @@ public class SubsystemTest extends OpMode {
         if(gamepad1.left_bumper){
             setPositions(7);
         }*/
-        if (gamepad1.x) {
+        if (gamepad1.x) { //Under specimen
             pivot.setkP("Normal");
             pivot.setPos("Start");
+            wrist.setForearmPos("Start");
+            wrist.setBicepPos("Start");
         }
-        if (gamepad1.y) {
+        if (gamepad1.y) { //Specimen place
             pivot.setkP("Normal");
-            pivot.setPos("Idle");
+            pivot.setPos("Start");
+            wrist.setForearmPos("Specimen");
+            wrist.setBicepPos("Start");
+            clawServo.setPosition(RobotConstants.closeClaw);
         }
-        if (gamepad1.left_bumper) {
+        if (gamepad1.left_bumper) { //Grab test
             pivot.setkP("Normal");
             pivot.setPos("Down");
+            wrist.setForearmPos("Grab");
+            wrist.setBicepPos("Grab");
+            wrist.setRotationPos(0);
+            clawServo.setPosition(RobotConstants.openClaw);
         }
         if (gamepad1.right_trigger > 0.5) {
             wrist.setRotationPos(0); //0

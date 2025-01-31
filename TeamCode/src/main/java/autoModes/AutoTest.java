@@ -69,7 +69,7 @@ public class AutoTest extends OpMode {
     private Pose rightSub = new Pose(60,45,Math.toRadians(90));
     private Pose leftBlueSub = new Pose(36,76,Math.toRadians(0));
     private Pose observationBlue = new Pose(18.4,34.7,Math.toRadians(235));
-    private Pose rightBlueSub = new Pose(32,62.8,Math.toRadians(0));
+    private Pose rightBlueSub = new Pose(33,62.8,Math.toRadians(0));
     private Pose firstSpecimen = new Pose(59.7,25,Math.toRadians(0));
     private Pose secondSpecimen = new Pose(59.7,15,Math.toRadians(0));
     private Pose thirdSpecimen = new Pose(59.7,9.3,Math.toRadians(0));
@@ -84,7 +84,7 @@ public class AutoTest extends OpMode {
             observationBack1, basketMove, leftSubMove, observationPush1, observationDown1,
     observationPush2, observationBack2, observationDown2, observationPush3, observationDown3,
             curveBack, place1, placeBack1, place2, placeBack2, place3, placeBack3, place4,
-            rightMover;
+            rightMover, Backup;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -100,15 +100,23 @@ public class AutoTest extends OpMode {
         rightMove = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(rightBlueSub)))
                 .setConstantHeadingInterpolation(0)
-                .setPathEndTimeoutConstraint(0.5)
+                .setPathEndTimeoutConstraint(100)
+                .build();
+        //Backup Line
+        Backup = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(rightBlueSub), new Point(rightBlueSub.getX() -4,
+                        rightBlueSub.getY())))
+                .setConstantHeadingInterpolation(0)
+                .setPathEndTimeoutConstraint(100)
                 .build();
 
         //Line2
         specimenCurve = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(rightBlueSub), new Point(26.700, 32.800),
+                .addPath(new BezierCurve(new Point(rightBlueSub.getX() -4,
+                        rightBlueSub.getY()), new Point(26.700, 32.800),
                         new Point(59.700, 32.800)))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
-                .setPathEndTimeoutConstraint(0.5)
+                .setPathEndTimeoutConstraint(100)
                 .build();
 
         //Line3
@@ -239,25 +247,32 @@ public class AutoTest extends OpMode {
         switch (pathState) {
             case 10:
                 //Line1
-                //close claw
-                //clawServo.setPosition(RobotConstants.closeClaw);
-                //if(pathTimer.getElapsedTimeSeconds() > 1) {
-                    //setCaseState(1); // Place
+                follower.setMaxPower(0.8);
+                setCaseState(1); //Under Specimen
                 follower.followPath(rightMove);
-                    //open claw
-                    //clawServo.setPosition(RobotConstants.openClaw);
-                    //setPathState(11);
-                //}
-                break;
-            case 11:
-                if (pathTimer.getElapsedTimeSeconds() > 3 && follower.atParametricEnd()) {
-                    //setCaseState(0); // Rest
-                    //Line2
-                    follower.followPath(specimenCurve);
-                    setPathState(12);
+                if(pathTimer.getElapsedTimeSeconds() > 3) {
+                    setCaseState(2); //Place Specimen
+                    setPathState(11);
                 }
                 break;
+            case 11:
+                    //Backup Line
+                follower.setMaxPower(0.2);
+                    follower.followPath(Backup);
+                    if (pathTimer.getElapsedTimeSeconds() > 1){
+                        clawServo.setPosition(RobotConstants.openClaw);
+                        setPathState(12);
+                }
             case 12:
+                if (pathTimer.getElapsedTimeSeconds() > 1.5 && follower.atParametricEnd()) {
+                    //Line2
+                    follower.setMaxPower(0.8);
+                    setCaseState(0);
+                    follower.followPath(specimenCurve);
+                    //setPathState(12);
+                }
+                break;
+            case 120:
                 if (follower.atParametricEnd()) {
                     //Line3
                 follower.followPath(observationDown1);
@@ -275,7 +290,7 @@ public class AutoTest extends OpMode {
                 if (follower.atParametricEnd()) {
                     //Line5
                     follower.followPath(observationBack1);
-                    //setPathState(15);
+                    setPathState(15);
                 }
                 break;
             case 15:
@@ -310,7 +325,7 @@ public class AutoTest extends OpMode {
                 if (follower.atParametricEnd()) {
                     //Line10
                     follower.followPath(observationPush3);
-                    setPathState(20);
+                    //setPathState(20);
                 }
                 break;
             case 20:
@@ -536,21 +551,20 @@ public class AutoTest extends OpMode {
     @Override
     public void init_loop(){
         //Initialization
-        setCaseState(-2);
-        telemetry.addData("bicepLeft",bicepLeft.getPosition());
-        telemetry.addData("bicepRight",bicepRight.getPosition());
-        telemetry.addData("forearm",forearm.getPosition());
-        telemetry.addData("leftPivot",leftPivot.getCurrentPosition());
-        telemetry.addData("rightPivot",rightPivot.getCurrentPosition());
-        telemetry.addLine("init_loop finished");
-        telemetry.update();
+        setCaseState(0);
         wrist.update();
         pivot.update();
         autonomousCaseUpdate();
 
         // After 4 Seconds, Robot Initialization is complete
         if (opmodeTimer.getElapsedTimeSeconds() > 3) {
+            telemetry.addData("bicepLeft",bicepLeft.getPosition());
+            telemetry.addData("bicepRight",bicepRight.getPosition());
+            telemetry.addData("forearm",forearm.getPosition());
+            telemetry.addData("leftPivot",leftPivot.getCurrentPosition());
+            telemetry.addData("rightPivot",rightPivot.getCurrentPosition());
             telemetry.addData("Init", "Finished");
+            telemetry.update();
         }
     }
 
@@ -574,20 +588,13 @@ public class AutoTest extends OpMode {
 
     public void autonomousCaseUpdate()  {
         switch (caseState) {
-            case -2: // Initialization movements
+            case 0: // Initialization movements
                 pivot.setkP("Normal");
                 pivot.setPos("Init");
                 wrist.setForearmPos("Init");
                 wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
                 clawServo.setPosition(RobotConstants.closeClaw);
-                break;
-            case 0: // Idle
-                pivot.setPos("Idle");
-                pivot.setkP("Normal");
-                //extension.setPos("Idle");
-                wrist.setBicepPos("Auton Idle");
-                wrist.setForearmPos("Auton Idle");
                 break;
             case 1: // Under Specimen
                 pivot.setkP("Normal");
@@ -607,6 +614,13 @@ public class AutoTest extends OpMode {
                 //extension.setPos("Idle");
                 wrist.setBicepPos("Basket");
                 wrist.setForearmPos("Idle");
+                break;
+            case 4: // Middle
+                pivot.setPos("Idle");
+                pivot.setkP("Normal");
+                //extension.setPos("Idle");
+                wrist.setBicepPos("Auton Idle");
+                wrist.setForearmPos("Auton Idle");
                 break;
         }
 

@@ -10,8 +10,8 @@ public class Wrist {
 
     private Servo rotation, forearm, bicepLeft, bicepRight;
     public static double bIntake= 0.0, bBasket = 0.15, bIdle = 0.25, bStart = 0.45,
-            bMiddle = 0.5, autonIdle = 0.2, fIntake = 0.4, fBasket = 0.1, fIdle = 0.5, fStart = 0.35,
-    fAutonIdle = 0.5, fInit = 0.8; //fIntake = 1.0, fBasket = 0.3, bMiddle = 0.5 bStart = 0.8
+            bMiddle = 0.5, autonIdle = 0.2, fIntake = 0.4, fBasket = 0.1, fIdle = 0.5, fStart = 0.65,
+    fAutonIdle = 0.5, fInit = 1.0; //fIntake = 1.0, fBasket = 0.3, bMiddle = 0.5 bStart = 0.8
     private double bicepPos, forearmPos, rotationPos;
 
     public static HashMap<String, Double> bicepPositions = new HashMap<String, Double>();
@@ -33,14 +33,17 @@ public class Wrist {
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
         bicepPositions.put("Init",      1.0);
+        bicepPositions.put("Grab",      0.45);
 
         forearmPositions.put("Intake",      fIntake);
         forearmPositions.put("Basket",      fBasket);
-        forearmPositions.put("Idle",        fIdle); //Middle
+        forearmPositions.put("Idle",        fIdle);
         forearmPositions.put("Start",       fStart);
         forearmPositions.put("Auton Idle",  fAutonIdle);
         forearmPositions.put("Init",      fInit);
-        forearmPositions.put("Specimen",      0.3);
+        forearmPositions.put("Specimen",      0.50);
+        forearmPositions.put("Middle",      0.50);
+        forearmPositions.put("Grab",      0.625);
 
         rotationPositions[0] = 0; //Horizontal
         rotationPositions[1] = 0.65;
