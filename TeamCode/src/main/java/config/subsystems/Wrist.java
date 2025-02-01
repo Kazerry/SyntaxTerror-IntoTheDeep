@@ -30,29 +30,32 @@ public class Wrist {
         bicepPositions.put("Basket",      bBasket);
         bicepPositions.put("Idle",        bIdle);
         bicepPositions.put("Start",       bStart);
+        bicepPositions.put("Start2",       0.545);
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
         bicepPositions.put("Init",      1.0);
-        bicepPositions.put("Specimen",      0.56);
-        bicepPositions.put("Grab",      0.685); //0.525 0.160 change from previous
-        bicepPositions.put("Place",      0.35); //Lowkey fine
-        bicepPositions.put("downPlace",      0.385); //same wit this
-        bicepPositions.put("gPlace",      0.86);
+        bicepPositions.put("Specimen",      0.47);
+        bicepPositions.put("Grab",      0.62); //0.525 0.160 change from previous
+        bicepPositions.put("Place",      0.325); //Lowkey fine
+        bicepPositions.put("downPlace",      0.392); //same wit this
+        bicepPositions.put("gPlace",      0.835);
+        bicepPositions.put("gUP",      0.50);
 
         forearmPositions.put("Intake",      fIntake);
         forearmPositions.put("Basket",      fBasket);
         forearmPositions.put("Idle",        fIdle);
         forearmPositions.put("Start",       fStart);
+        forearmPositions.put("Start2",       0.62);
         forearmPositions.put("Auton Idle",  fAutonIdle);
         forearmPositions.put("Init",      fInit);
-        forearmPositions.put("Specimen",      0.47);
+        forearmPositions.put("Specimen",      0.50);
         forearmPositions.put("Middle",      0.50);
         forearmPositions.put("Grab",      0.93); //0.96 -0.03 change from previous
         forearmPositions.put("gUP",      0.47);
-        forearmPositions.put("Place",      0.65);
-        forearmPositions.put("downPlace",      0.65);
-        forearmPositions.put("gPlace",      0.635);
-        forearmPositions.put("gPlaceUP",      0.6);
+        forearmPositions.put("Place",      0.72);
+        forearmPositions.put("downPlace",      0.73);
+        forearmPositions.put("gPlace",      0.6);
+        forearmPositions.put("gPlaceUP",      0.575);
 
         rotationPositions[0] = 0; //Horizontal
         rotationPositions[1] = 0.65;

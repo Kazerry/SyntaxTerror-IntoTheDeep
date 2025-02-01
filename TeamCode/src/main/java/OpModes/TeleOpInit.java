@@ -1,9 +1,5 @@
 package OpModes;
 
-import static autoModes.AutoTest.parkPose;
-import static autoModes.AutoTest.parkTimer;
-import static config.localization.Limelight.LX;
-import static config.localization.Limelight.LY;
 import static config.localization.Limelight.fiducialResults;
 
 import com.pedropathing.follower.Follower;
@@ -17,6 +13,7 @@ import config.subsystems.Pivot;
 import config.subsystems.Extension;
 import config.subsystems.Wrist;
 
+import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -28,8 +25,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name = "Into The Deep TeleOp", group = "!TeleOp")
-public class TeleOpFull extends OpMode {
+@TeleOp(name = "Syntax Terror TeleInit", group = "!TeleOp")
+public class TeleOpInit extends OpMode {
     private Follower follower;
     private KalmanFuse kalmanFuse;
     /**
@@ -66,16 +63,13 @@ public class TeleOpFull extends OpMode {
     private Servo rotation;
     private Servo clawServo;
 
+    private Timer initTimer;
+
     @Override
     public void init() {
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        if (parkTimer.getElapsedTimeSeconds() < 40) {
-            startPose = parkPose;
-        } else {
-            startPose = new Pose(0,0,0);
-        }
         follower.setStartingPose(startPose);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -91,9 +85,13 @@ public class TeleOpFull extends OpMode {
         forearm = hardwareMap.get(Servo.class, "forearm");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
+        leftPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -102,29 +100,46 @@ public class TeleOpFull extends OpMode {
         LimeInit = new Limelight();
         LimeInit.LimelightInit(limelight, follower, startPose);
 
+        initTimer = new Timer();
+
         extension = new Extension(leftExtension, rightExtension, extLimit); //River Extension
         pivot = new Pivot(hardwareMap, rightPivot, leftPivot); //River Pivot
         wrist = new Wrist(bicepLeft, bicepRight, forearm, rotation); //River Wrist
 
         follower.startTeleopDrive();
         follower.setMaxPower(1);
+        initTimer.resetTimer();
     }
 
     @Override
     public void init_loop(){
-        //Init movements if you want them
+        //Initialization
+        if(initTimer.getElapsedTimeSeconds() > 1){
+            pivot.setkP("Normal");
+            pivot.setPos("Start");
+        }
+        if(initTimer.getElapsedTimeSeconds() > 2) {
+            setPositions(0);
+            setPositionsUpdate();
+        }
+        wrist.update();
+        pivot.update();
+        // After 4 Seconds, Robot Initialization is complete
+        if (initTimer.getElapsedTimeSeconds() > 4) {
+            telemetry.addData("bicepLeft",bicepLeft.getPosition());
+            telemetry.addData("bicepRight",bicepRight.getPosition());
+            telemetry.addData("forearm",forearm.getPosition());
+            telemetry.addData("leftPivot",leftPivot.getCurrentPosition());
+            telemetry.addData("rightPivot",rightPivot.getCurrentPosition());
+            telemetry.addData("Init", "Finished");
+            telemetry.update();
+        }
     }
 
     /** This method is called once at the start of the OpMode. **/
     @Override
     public void start() {
         follower.startTeleopDrive();
-        pivot.setkP("Normal");
-        pivot.setPos("Init");
-        wrist.setForearmPos("Init");
-        wrist.setBicepPos("Init");
-        pivot.update();
-        wrist.update();
     }
 
 
@@ -135,6 +150,7 @@ public class TeleOpFull extends OpMode {
         pivot.update();
         wrist.update();
 
+        setPositionsUpdate();
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         //kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
@@ -174,7 +190,7 @@ public class TeleOpFull extends OpMode {
             setPositions(5);
         }
         if(gamepad1.left_stick_button){
-            setPositions(6); //Init
+        setPositions(0); //Init
         }
 
         if(gamepad1.right_bumper && !lastToggleState) { // If button pressed and wasn't pressed before
@@ -220,12 +236,13 @@ public class TeleOpFull extends OpMode {
                 wrist.setForearmPos("gPlaceUP");
                 pivot.setPos("gPlaceUP");
                 break;
-            case 0: // Idle
-                pivot.setPos("Idle");
+            case 0: // Init
                 pivot.setkP("Normal");
-                extension.setPos("Idle");
-                wrist.setForearmPos("Idle");
-                wrist.setBicepPos("Idle");
+                pivot.setPos("Init");
+                wrist.setForearmPos("Init");
+                wrist.setBicepPos("Init");
+                wrist.setRotationPos(0);
+                clawServo.setPosition(RobotConstants.closeClaw);
                 break;
             case 1: // Place
                 pivot.setkP("Normal");
@@ -233,6 +250,7 @@ public class TeleOpFull extends OpMode {
                 wrist.setForearmPos("Place");
                 wrist.setBicepPos("Place");
                 extension.setPos("Place");
+
                 break;
             case 2: // Drop to Place
                 pivot.setkP("Normal");
@@ -254,7 +272,6 @@ public class TeleOpFull extends OpMode {
                 pivot.setPos("Grab");
                 wrist.setForearmPos("Grab");
                 wrist.setBicepPos("Grab");
-                wrist.setRotationPos(0);
                 extension.setPos("Idle");
                 break;
             case 5: // Under bars for grab
@@ -264,13 +281,12 @@ public class TeleOpFull extends OpMode {
                 wrist.setBicepPos("gUP");
                 extension.setPos("Idle");
                 break;
-            case 6: // Init
+            case 6: // Idle
+                pivot.setPos("Idle");
                 pivot.setkP("Normal");
-                pivot.setPos("Init");
-                wrist.setForearmPos("Init");
-                wrist.setBicepPos("Init");
-                wrist.setRotationPos(0);
-                clawServo.setPosition(RobotConstants.closeClaw);
+                extension.setPos("Idle");
+                wrist.setForearmPos("Idle");
+                wrist.setBicepPos("Idle");
                 break;
         }
     }

@@ -497,14 +497,14 @@ public class AutoTest extends OpMode {
         follower.update();
         autonomousPathUpdate();
         //autonomousActionUpdate();
-        //autonomousCaseUpdate();
+        autonomousCaseUpdate();
 
         //Kalman filtering and Pose fusing between PedroPathing and LimeLight
         kalmanFuse.updateLocalization(follower.getPose(), LimeInit);
         Pose tempPose = kalmanFuse.getFusedPose();
         //follower.setPose(tempPose);
 
-        //extension.update();
+        extension.update();
         pivot.update();
         wrist.update();
 
@@ -591,7 +591,7 @@ public class AutoTest extends OpMode {
         wrist.update();
         pivot.update();
         // After 4 Seconds, Robot Initialization is complete
-        if (opmodeTimer.getElapsedTimeSeconds() > 4) {
+        if (initTimer.getElapsedTimeSeconds() > 4) {
             telemetry.addData("bicepLeft",bicepLeft.getPosition());
             telemetry.addData("bicepRight",bicepRight.getPosition());
             telemetry.addData("forearm",forearm.getPosition());
@@ -633,8 +633,8 @@ public class AutoTest extends OpMode {
             case 1: // Under Specimen
                 pivot.setkP("Normal");
                 pivot.setPos("Start");
-                wrist.setForearmPos("Start");
-                wrist.setBicepPos("Start");
+                wrist.setForearmPos("Start2");
+                wrist.setBicepPos("Start2");
                 break;
             case 2: // Placing Specimen
                 pivot.setkP("Normal");
@@ -653,7 +653,7 @@ public class AutoTest extends OpMode {
                 break;
             case 4: // Observation grab UP
                 wrist.setForearmPos("gPlaceUP");
-                pivot.setPos("Start");
+                pivot.setPos("gPlaceUP");
                 break;
             case 5: // Placing
                 pivot.setkP("Normal");
@@ -672,7 +672,7 @@ public class AutoTest extends OpMode {
             case 100: // Middle
                 pivot.setPos("Idle");
                 pivot.setkP("Normal");
-                //extension.setPos("Idle");
+                extension.setPos("Idle");
                 wrist.setBicepPos("Auton Idle");
                 wrist.setForearmPos("Auton Idle");
                 break;

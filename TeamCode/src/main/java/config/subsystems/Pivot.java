@@ -33,7 +33,7 @@ public class Pivot {
     public static int PGrab = 100;
 
 
-    private int pos;
+    private int pos = 0;
     private int curLeft = 0, lAngle = curLeft;
     private int lta = 0;
 
@@ -76,6 +76,7 @@ public class Pivot {
         positions.put("Init", PInit);
         positions.put("Grab", PGrab);
         positions.put("gPlace", 200);
+        positions.put("gPlaceUP", 270);
 
         kPs.put("Normal", kP);
         kPs.put("Extended", extendedKp);

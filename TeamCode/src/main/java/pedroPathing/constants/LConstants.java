@@ -13,7 +13,7 @@ public class LConstants {
         OTOSConstants.linearUnit = DistanceUnit.INCH;
         OTOSConstants.angleUnit = AngleUnit.RADIANS;
         OTOSConstants.offset = new SparkFunOTOS.Pose2D(1.75, 0, 3 * Math.PI / 2);
-        OTOSConstants.linearScalar = 0.9763;
+        OTOSConstants.linearScalar = 1.27; //1.17 on light tiles 0.9763 on dark
         OTOSConstants.angularScalar = 0.995;
     }
 }
