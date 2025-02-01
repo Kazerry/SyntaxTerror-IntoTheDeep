@@ -57,10 +57,10 @@ public class Wrist {
         forearmPositions.put("gPlace",      0.6);
         forearmPositions.put("gPlaceUP",      0.575);
 
-        rotationPositions[0] = 0; //Horizontal
-        rotationPositions[1] = 0.65;
-        rotationPositions[2] = 0.8; //Vertical
-        rotationPositions[3] = 0.88;
+        rotationPositions[0] = 0;
+        rotationPositions[1] = 0.33;
+        rotationPositions[2] = 0.66;
+        rotationPositions[3] = 1;
     }
 
     public void update()

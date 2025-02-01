@@ -54,7 +54,7 @@ public class Extension {
         positions.put("Intake", -1000);
         positions.put("Idle",   -50);
         positions.put("Place",   -1350);
-        positions.put("downPlace",   -50);
+        positions.put("downPlace",   -150);
         positions.put("Basket", -2300);
         positions.put("Hang", -2500);
         positions.put("Retract", -1400);
