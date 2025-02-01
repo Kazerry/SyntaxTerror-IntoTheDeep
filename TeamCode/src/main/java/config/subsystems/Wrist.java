@@ -33,11 +33,11 @@ public class Wrist {
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
         bicepPositions.put("Init",      1.0);
-        bicepPositions.put("Specimen",      0.4);
-        bicepPositions.put("Grab",      0.525);
-        bicepPositions.put("Place",      0.35);
-        bicepPositions.put("downPlace",      0.40);
-        bicepPositions.put("gPlace",      0.70);
+        bicepPositions.put("Specimen",      0.56);
+        bicepPositions.put("Grab",      0.685); //0.525 0.160 change from previous
+        bicepPositions.put("Place",      0.35); //Lowkey fine
+        bicepPositions.put("downPlace",      0.385); //same wit this
+        bicepPositions.put("gPlace",      0.86);
 
         forearmPositions.put("Intake",      fIntake);
         forearmPositions.put("Basket",      fBasket);
@@ -45,13 +45,14 @@ public class Wrist {
         forearmPositions.put("Start",       fStart);
         forearmPositions.put("Auton Idle",  fAutonIdle);
         forearmPositions.put("Init",      fInit);
-        forearmPositions.put("Specimen",      0.5);
+        forearmPositions.put("Specimen",      0.47);
         forearmPositions.put("Middle",      0.50);
-        forearmPositions.put("Grab",      0.96);
-        forearmPositions.put("gUP",      0.50);
-        forearmPositions.put("Place",      0.70);
-        forearmPositions.put("downPlace",      0.70);
-        forearmPositions.put("gPlace",      0.70);
+        forearmPositions.put("Grab",      0.93); //0.96 -0.03 change from previous
+        forearmPositions.put("gUP",      0.47);
+        forearmPositions.put("Place",      0.65);
+        forearmPositions.put("downPlace",      0.65);
+        forearmPositions.put("gPlace",      0.635);
+        forearmPositions.put("gPlaceUP",      0.6);
 
         rotationPositions[0] = 0; //Horizontal
         rotationPositions[1] = 0.65;

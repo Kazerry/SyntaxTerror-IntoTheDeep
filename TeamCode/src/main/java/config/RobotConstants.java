@@ -7,7 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 public class RobotConstants {
 
     /** Variables are positions for the claw servos. **/
-    public static double closeClaw = 0.178;
+    public static double closeClaw = 0.190;
     public static double openClaw = 0.025;
 
     /** Variables are positions for the Arm Motors. **/

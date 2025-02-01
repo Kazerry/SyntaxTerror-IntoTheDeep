@@ -347,7 +347,7 @@ public class AutoTest extends OpMode {
                 if (follower.atParametricEnd()) {
                     //Line12
                     follower.setMaxPower(0.8);
-                    wrist.setBicepPos("Grab");
+                    setCaseState(4); //Observation lift
                     if(pathTimer.getElapsedTimeSeconds() > 1){
                         follower.followPath(place1);
                         //setCaseState(5); //above Place
@@ -376,7 +376,7 @@ public class AutoTest extends OpMode {
             case 23:
                 if (follower.atParametricEnd()) {
                     //Line14
-                    wrist.setBicepPos("Grab");
+                    setCaseState(4); //Observation lift
                     if(pathTimer.getElapsedTimeSeconds() > 1){
                         follower.followPath(place2);
                         //setCaseState(5); //above Place
@@ -405,7 +405,7 @@ public class AutoTest extends OpMode {
             case 25:
                 if (follower.atParametricEnd()) {
                     //Line16
-                    wrist.setBicepPos("Grab");
+                    setCaseState(4); //Observation lift
                     if(pathTimer.getElapsedTimeSeconds() > 1){
                         follower.followPath(place3);
                         //setCaseState(5); //above Place
@@ -434,7 +434,7 @@ public class AutoTest extends OpMode {
             case 27:
                 if (follower.atParametricEnd()) {
                     //Line18
-                    wrist.setBicepPos("Grab");
+                    setCaseState(4); //Observation lift
                     if(pathTimer.getElapsedTimeSeconds() > 1){
                         follower.followPath(place4);
                         //setCaseState(5); //above Place
@@ -651,12 +651,9 @@ public class AutoTest extends OpMode {
                 clawServo.setPosition(RobotConstants.openClaw);
                 extension.setPos("Idle");
                 break;
-            case 4: // Middle
-                pivot.setPos("Idle");
-                pivot.setkP("Normal");
-                //extension.setPos("Idle");
-                wrist.setBicepPos("Auton Idle");
-                wrist.setForearmPos("Auton Idle");
+            case 4: // Observation grab UP
+                wrist.setForearmPos("gPlaceUP");
+                pivot.setPos("Start");
                 break;
             case 5: // Placing
                 pivot.setkP("Normal");
@@ -671,6 +668,13 @@ public class AutoTest extends OpMode {
                 wrist.setForearmPos("downPlace");
                 wrist.setBicepPos("downPlace");
                 extension.setPos("downPlace");
+                break;
+            case 100: // Middle
+                pivot.setPos("Idle");
+                pivot.setkP("Normal");
+                //extension.setPos("Idle");
+                wrist.setBicepPos("Auton Idle");
+                wrist.setForearmPos("Auton Idle");
                 break;
         }
 

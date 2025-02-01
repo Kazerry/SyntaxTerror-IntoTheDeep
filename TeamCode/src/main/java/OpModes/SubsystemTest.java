@@ -107,11 +107,6 @@ public class SubsystemTest extends OpMode {
         leftExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        /*leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);*/
-
         kalmanFuse = new KalmanFuse();
         kalmanFuse.KalmanInit();
         LimeInit = new Limelight();
@@ -161,6 +156,10 @@ public class SubsystemTest extends OpMode {
         }
         if (gamepad1.dpad_down) {
             clawServo.setPosition(RobotConstants.closeClaw);
+        }
+        if (gamepad1.dpad_left) { //testing for grabbing from side
+            wrist.setForearmPos("gPlaceUP");
+            pivot.setPos("Start");
         }
 
         if (gamepad1.x) { //Placing

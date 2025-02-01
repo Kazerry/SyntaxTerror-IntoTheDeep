@@ -21,7 +21,7 @@ public class Extension {
     private int pos;
     private int curLeft;
 
-    public static double kP = 0.0025, kI = 0, kD = 0;
+    public static double kP = 0.005, kI = 0, kD = 0;
     PIDController pidController = new PIDController(kP, kI, kD);
     public static int PIDTol = 10, PIDThresh = 10;
 
@@ -40,7 +40,9 @@ public class Extension {
         pidController.setTolerance(PIDTol);
 
         positions.put("Intake", -1000);
-        positions.put("Idle", -50);
+        positions.put("Idle",   -50);
+        positions.put("Place",   -1200);
+        positions.put("downPlace",   -770);
         positions.put("Basket", -2300);
         positions.put("Hang", -2500);
         positions.put("Retract", -1400);
