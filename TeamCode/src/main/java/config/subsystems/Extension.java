@@ -5,7 +5,6 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import java.util.HashMap;
@@ -20,6 +19,8 @@ public class Extension {
     private boolean wasPressed = false; // Track previous limit switch state
     private int pos;
     private int curLeft;
+    private int manualPos;
+    private boolean isManualMode = false;
 
     public static double kP = 0.0075, kI = 0, kD = 0;
     PIDController pidController = new PIDController(kP, kI, kD);
@@ -33,9 +34,6 @@ public class Extension {
         this.limitSwitch = limitSwitch;
 
         leftExtension.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        // Initial motor configuration
-        //configureMotors();
 
         // Stop motors
         leftExtension.setPower(0);
@@ -58,6 +56,7 @@ public class Extension {
         positions.put("Basket", -2300);
         positions.put("Hang", -2500);
         positions.put("Retract", -1400);
+        positions.put("Specified", -1000); // Added for fine-tuning when under bars
     }
 
     private void configureMotors() {
@@ -92,13 +91,15 @@ public class Extension {
             // Stop motors immediately
             applyPower(0);
 
-            // Reconfigure motors (includes encoder reset)
+            // Reset encoders to 0 when limit switch is pressed
+            leftExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            // Reconfigure motors
             configureMotors();
 
-            // Reset target position if needed
-            if (pos < 0) {
-                pos = 0;
-            }
+            // Reset position to 0
+            pos = 0;
         }
         wasPressed = isPressed;
 
@@ -118,6 +119,19 @@ public class Extension {
         }
     }
 
+    public void setManualPos(int manualPosition) {
+        // Ensure the manual position is within safe bounds
+        // 0 is fully retracted (limit switch), -2000 is fully extended
+        this.manualPos = Math.min(0, Math.max(-2000, manualPosition));
+        this.pos = manualPos;
+        this.isManualMode = true;
+    }
+
+    public void setPos(String pos) {
+        this.pos = positions.get(pos);
+        this.isManualMode = false;
+    }
+
     public void applyPower(double power) {
         // Add safety check for limit switch
         if (limitSwitch.isPressed() && power < 0) {
@@ -125,10 +139,6 @@ public class Extension {
         }
         leftExtension.setPower(power);
         rightExtension.setPower(power);
-    }
-
-    public void setPos(String pos) {
-        this.pos = positions.get(pos);
     }
 
     // Add getters for debugging if needed

@@ -53,28 +53,33 @@ public class TeleOpInit extends OpMode {
     private boolean lastLeftBumperState = false;
     private boolean lastXState = false;
     private int currentSequence = 0;
-    private boolean isSpecimenSequence = false;
+    private int currentSequenceSet = 0; // 0 = Intake, 1 = Sample, 2 = Specimen
 
     private boolean wasUnderBarsOpen = false;
 
-    private static final int SPECIMEN_TOTAL_SEQUENCES = 7;
-    private static final int SAMPLE_TOTAL_SEQUENCES = 6;
-    private static final String[] SPECIMEN_SEQUENCE_NAMES = {
-            "Initial Position",
-            "Under Bars (Open Claw)",
-            "Grab from Floor",
-            "Under Bars (Closed Claw)",
-            "Place Position",
-            "Drop at Place",
-            "Grab from Wall"
-    };
-    private static final String[] SAMPLE_SEQUENCE_NAMES = {
+    private static final int INTAKE_TOTAL_SEQUENCES = 6;
+    private static final int SAMPLE_TOTAL_SEQUENCES = 3;
+    private static final int SPECIMEN_TOTAL_SEQUENCES = 3;
+
+    private static final String[] INTAKE_SEQUENCE_NAMES = {
             "Idle",
             "Under Bars (Open Claw)",
             "Floor Grab",
             "Under Bars (Closed Claw)",
-            "BasketClose",
-            "BasketOpen"
+            "Rotate",
+            "Observation Zone"
+    };
+
+    private static final String[] SAMPLE_SEQUENCE_NAMES = {
+            "Idle",
+            "Basket Close",
+            "Basket Open"
+    };
+
+    private static final String[] SPECIMEN_SEQUENCE_NAMES = {
+            "Idle",
+            "Grab from Wall",
+            "Place Position"
     };
 
     private int positions;
@@ -170,13 +175,13 @@ public class TeleOpInit extends OpMode {
 
         // Switch between sequence sets
         if (gamepad1.x && !lastXState) {
-            isSpecimenSequence = !isSpecimenSequence;
+            currentSequenceSet = (currentSequenceSet + 1) % 3;
             currentSequence = 0; // Reset to first position when switching
             setPositions(currentSequence);
         }
         lastXState = gamepad1.x;
 
-        int totalSequences = isSpecimenSequence ? SPECIMEN_TOTAL_SEQUENCES : SAMPLE_TOTAL_SEQUENCES;
+        int totalSequences = getCurrentTotalSequences();
 
         // Sequence control
         if (gamepad1.right_bumper && !lastRightBumperState) {
@@ -192,6 +197,18 @@ public class TeleOpInit extends OpMode {
             servoPositionsEnabled = (currentSequence == 1 || currentSequence == 3);
         }
         lastLeftBumperState = gamepad1.left_bumper;
+
+        // Extension fine-tuning
+        if (wasUnderBarsOpen) {
+            int currentExtensionTicks = (rightExtension.getCurrentPosition() + leftExtension.getCurrentPosition()) / 2;
+            if (gamepad1.left_trigger > 0.1) {
+                // Retract (closer to 0)
+                extension.setManualPos(Math.min(0, currentExtensionTicks + (int)(gamepad1.left_trigger * 50)));
+            } else if (gamepad1.right_trigger > 0.1) {
+                // Extend (more negative)
+                extension.setManualPos(Math.max(-2000, currentExtensionTicks - (int)(gamepad1.right_trigger * 50)));
+            }
+        }
 
         // Servo position control when in appropriate sequence
         if (servoPositionsEnabled) {
@@ -212,17 +229,30 @@ public class TeleOpInit extends OpMode {
 
         setPositionsUpdate();
 
-        String[] currentSequenceNames = isSpecimenSequence ? SPECIMEN_SEQUENCE_NAMES : SAMPLE_SEQUENCE_NAMES;
+        // Get current sequence names based on current sequence set
+        String[] currentSequenceNames = getCurrentSequenceNames();
 
-        // Telemetry
-        telemetry.addData("Sequence Set", isSpecimenSequence ? "Specimen" : "Sample");
-        telemetry.addData("Current Sequence", String.format("%d: %s", currentSequence, currentSequenceNames[currentSequence]));
-        telemetry.addData("Next Sequence", String.format("%d: %s",
-                (currentSequence + 1) % totalSequences,
-                currentSequenceNames[(currentSequence + 1) % totalSequences]));
-        telemetry.addData("Previous Sequence", String.format("%d: %s",
-                (currentSequence - 1 + totalSequences) % totalSequences,
-                currentSequenceNames[(currentSequence - 1 + totalSequences) % totalSequences]));
+        // Telemetry with more detailed sequence information
+        telemetry.addData("Sequence Set",
+                currentSequenceSet == 0 ? "Intake" :
+                        currentSequenceSet == 1 ? "Sample" : "Specimen");
+
+        // Current Sequence Details
+        telemetry.addData("Current Sequence",
+                String.format("%d: %s", currentSequence, currentSequenceNames[currentSequence]));
+
+        // Next Sequence Details
+        telemetry.addData("Next Sequence",
+                String.format("%d: %s",
+                        (currentSequence + 1) % totalSequences,
+                        currentSequenceNames[(currentSequence + 1) % totalSequences]));
+
+        // Previous Sequence Details
+        telemetry.addData("Previous Sequence",
+                String.format("%d: %s",
+                        (currentSequence - 1 + totalSequences) % totalSequences,
+                        currentSequenceNames[(currentSequence - 1 + totalSequences) % totalSequences]));
+
         telemetry.addData("Speed Mode", isHalfSpeed ? "Half" : "Full");
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -244,22 +274,40 @@ public class TeleOpInit extends OpMode {
         follower.update();
     }
 
+    private int getCurrentTotalSequences() {
+        switch (currentSequenceSet) {
+            case 0: return INTAKE_TOTAL_SEQUENCES;
+            case 1: return SAMPLE_TOTAL_SEQUENCES;
+            case 2: return SPECIMEN_TOTAL_SEQUENCES;
+            default: return 0;
+        }
+    }
+
+    private String[] getCurrentSequenceNames() {
+        switch (currentSequenceSet) {
+            case 0: return INTAKE_SEQUENCE_NAMES;
+            case 1: return SAMPLE_SEQUENCE_NAMES;
+            case 2: return SPECIMEN_SEQUENCE_NAMES;
+            default: return new String[]{};
+        }
+    }
+
     public void setPositions(int pos) {
         positions = pos;
         setPositionsUpdate();
     }
 
     public void setPositionsUpdate() {
-        if (isSpecimenSequence) {
-            setSpecimenPositions();
-        } else {
-            setSamplePositions();
+        switch (currentSequenceSet) {
+            case 0: setIntakePositions(); break;
+            case 1: setSamplePositions(); break;
+            case 2: setSpecimenPositions(); break;
         }
     }
 
-    private void setSpecimenPositions() {
+    private void setIntakePositions() {
         switch (positions) {
-            case 0:
+            case 0: // Idle
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Init");
@@ -269,16 +317,16 @@ public class TeleOpInit extends OpMode {
                 extension.setPos("Idle");
                 clawServo.setPosition(RobotConstants.closeClaw);
                 break;
-            case 1:
+            case 1: // Under bars (open claw)
                 wasUnderBarsOpen = true;
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
                 wrist.setForearmPos("Grab");
                 wrist.setBicepPos("gUP");
-                extension.setPos("Idle");
+                extension.setPos("Specified");
                 clawServo.setPosition(RobotConstants.openClaw);
                 break;
-            case 2:
+            case 2: // Floor grab
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
@@ -287,7 +335,7 @@ public class TeleOpInit extends OpMode {
                 extension.setPos("Idle");
                 clawServo.setPosition(RobotConstants.closeClaw);
                 break;
-            case 3:
+            case 3: // Under bars (closed claw)
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
                 wrist.setForearmPos("Grab");
@@ -296,28 +344,19 @@ public class TeleOpInit extends OpMode {
                 clawServo.setPosition(RobotConstants.closeClaw);
                 wasUnderBarsOpen = false;
                 break;
-            case 4:
+            case 4: // Rotate
                 pivot.setkP("Normal");
-                pivot.setPos("Start");
-                wrist.setForearmPos("Place");
-                wrist.setBicepPos("Place");
-                extension.setPos("Place");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                pivot.setPos("Rotate");
+                wrist.setForearmPos("Rotate");
+                wrist.setBicepPos("Rotate");
+                wrist.setRotationPos(1);
+                extension.setPos("Idle");
                 break;
-            case 5:
+            case 5: // Observation zone
                 pivot.setkP("Normal");
-                pivot.setPos("Start");
-                wrist.setForearmPos("Place");
-                wrist.setBicepPos("Place");
-                extension.setPos("Place");
-                clawServo.setPosition(RobotConstants.openClaw);
-                break;
-            case 6:
-                pivot.setkP("Normal");
-                pivot.setPos("gPlace");
-                wrist.setForearmPos("gPlace");
-                wrist.setBicepPos("gPlace");
-                wrist.setRotationPos(0);
+                pivot.setPos("Observe");
+                wrist.setForearmPos("Observe");
+                wrist.setBicepPos("Observe");
                 extension.setPos("Idle");
                 break;
         }
@@ -336,49 +375,56 @@ public class TeleOpInit extends OpMode {
                 clawServo.setPosition(RobotConstants.closeClaw);
                 break;
             case 1:
-                wasUnderBarsOpen = true;
+                wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
-                pivot.setPos("Grab");
-                wrist.setForearmPos("Grab");
-                wrist.setBicepPos("gUP");
+                pivot.setPos("Basket");
+                wrist.setForearmPos("Basket");
+                wrist.setBicepPos("Basket");
+                extension.setPos("Basket");
+                clawServo.setPosition(RobotConstants.closeClaw);
+                break;
+            case 2:
+                wasUnderBarsOpen = false;
+                pivot.setkP("Normal");
+                pivot.setPos("Basket");
+                wrist.setForearmPos("Basket");
+                wrist.setBicepPos("Basket");
+                extension.setPos("Basket");
+                clawServo.setPosition(RobotConstants.openClaw);
+                break;
+        }
+    }
+
+    private void setSpecimenPositions() {
+        switch (positions) {
+            case 0:
+                wasUnderBarsOpen = false;
+                pivot.setkP("Normal");
+                pivot.setPos("Init");
+                wrist.setForearmPos("Init");
+                wrist.setBicepPos("Init");
+                wrist.setRotationPos(0);
+                extension.setPos("Idle");
+                clawServo.setPosition(RobotConstants.closeClaw);
+                break;
+            case 1:
+                wasUnderBarsOpen = false;
+                pivot.setkP("Normal");
+                pivot.setPos("gPlace");
+                wrist.setForearmPos("gPlace");
+                wrist.setBicepPos("gPlace");
+                wrist.setRotationPos(0);
                 extension.setPos("Idle");
                 clawServo.setPosition(RobotConstants.openClaw);
                 break;
             case 2:
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
-                pivot.setPos("Grab");
-                wrist.setForearmPos("Grab");
-                wrist.setBicepPos("Grab");
-                extension.setPos("Idle");
+                pivot.setPos("Place");
+                wrist.setForearmPos("Place");
+                wrist.setBicepPos("Place");
+                extension.setPos("Place");
                 clawServo.setPosition(RobotConstants.closeClaw);
-                break;
-            case 3:
-                pivot.setkP("Normal");
-                pivot.setPos("Grab");
-                wrist.setForearmPos("Grab");
-                wrist.setBicepPos("gUP");
-                extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.closeClaw);
-                wasUnderBarsOpen = false;
-                break;
-            case 4:
-                wasUnderBarsOpen = false;
-                pivot.setkP("Normal");
-                pivot.setPos("Basket");
-                wrist.setForearmPos("Basket");
-                wrist.setBicepPos("Basket");
-                extension.setPos("Basket");
-                clawServo.setPosition(RobotConstants.closeClaw);
-                break;
-            case 5:
-                wasUnderBarsOpen = false;
-                pivot.setkP("Normal");
-                pivot.setPos("Basket");
-                wrist.setForearmPos("Basket");
-                wrist.setBicepPos("Basket");
-                extension.setPos("Basket");
-                clawServo.setPosition(RobotConstants.openClaw);
                 break;
         }
     }
