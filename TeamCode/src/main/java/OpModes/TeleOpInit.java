@@ -6,7 +6,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 
-import config.RobotConstants;
+import config.RobotHardware;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.Pivot;
@@ -315,7 +315,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 1: // Under bars (open claw)
                 wasUnderBarsOpen = true;
@@ -324,7 +324,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setForearmPos("Grab");
                 wrist.setBicepPos("gUP");
                 extension.setPos("Specified");
-                clawServo.setPosition(RobotConstants.openClaw);
+                clawServo.setPosition(RobotHardware.openClaw);
                 break;
             case 2: // Floor grab
                 wasUnderBarsOpen = false;
@@ -333,7 +333,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setForearmPos("Grab");
                 wrist.setBicepPos("Grab");
                 extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 3: // Under bars (closed claw)
                 pivot.setkP("Normal");
@@ -341,7 +341,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setForearmPos("Grab");
                 wrist.setBicepPos("gUP");
                 extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 wasUnderBarsOpen = false;
                 break;
             case 4: // Rotate
@@ -372,7 +372,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 1:
                 wasUnderBarsOpen = false;
@@ -381,7 +381,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setForearmPos("Basket");
                 wrist.setBicepPos("Basket");
                 extension.setPos("Basket");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 2:
                 wasUnderBarsOpen = false;
@@ -390,7 +390,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setForearmPos("Basket");
                 wrist.setBicepPos("Basket");
                 extension.setPos("Basket");
-                clawServo.setPosition(RobotConstants.openClaw);
+                clawServo.setPosition(RobotHardware.openClaw);
                 break;
         }
     }
@@ -405,7 +405,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 1:
                 wasUnderBarsOpen = false;
@@ -415,7 +415,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setBicepPos("gPlace");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
-                clawServo.setPosition(RobotConstants.openClaw);
+                clawServo.setPosition(RobotHardware.openClaw);
                 break;
             case 2:
                 wasUnderBarsOpen = false;
@@ -424,7 +424,7 @@ public class TeleOpInit extends OpMode {
                 wrist.setForearmPos("Place");
                 wrist.setBicepPos("Place");
                 extension.setPos("Place");
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
         }
     }

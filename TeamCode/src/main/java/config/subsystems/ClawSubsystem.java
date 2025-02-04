@@ -3,7 +3,7 @@ package config.subsystems;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import config.RobotConstants;
+import config.RobotHardware;
 
 public class ClawSubsystem {
     // Servo for the claw
@@ -27,7 +27,7 @@ public class ClawSubsystem {
         this.colorSensor = colorSensor;
 
         // Initialize the claw as open
-        this.clawServo.setPosition(RobotConstants.openClaw);
+        this.clawServo.setPosition(RobotHardware.openClaw);
     }
 
     /**
@@ -39,9 +39,9 @@ public class ClawSubsystem {
         int green = colorSensor.green();
         int red = colorSensor.red();
 
-        return (blue > RobotConstants.yellowBlueMin && blue < RobotConstants.yellowBlueMax &&
-                green > RobotConstants.yellowGreenMin && green < RobotConstants.yellowGreenMax &&
-                red > RobotConstants.yellowRedMin && red < RobotConstants.yellowRedMax);
+        return (blue > RobotHardware.yellowBlueMin && blue < RobotHardware.yellowBlueMax &&
+                green > RobotHardware.yellowGreenMin && green < RobotHardware.yellowGreenMax &&
+                red > RobotHardware.yellowRedMin && red < RobotHardware.yellowRedMax);
     }
 
     /**
@@ -52,7 +52,7 @@ public class ClawSubsystem {
             yellowDetectionCount++;
 
             if (yellowDetectionCount >= yellowDetectionThreshold && !isClawClosed) {
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 isClawClosed = true;
                 clawTimer.reset();
             }
@@ -60,7 +60,7 @@ public class ClawSubsystem {
             yellowDetectionCount = 0;
 
             if (isClawClosed && clawTimer.seconds() > CLAW_HOLD_TIME) {
-                clawServo.setPosition(RobotConstants.openClaw);
+                clawServo.setPosition(RobotHardware.openClaw);
                 isClawClosed = false;
             }
         }
@@ -70,7 +70,7 @@ public class ClawSubsystem {
      * Overrides to manually close the claw.
      */
     public void closeClaw() {
-        clawServo.setPosition(RobotConstants.closeClaw);
+        clawServo.setPosition(RobotHardware.closeClaw);
         isClawClosed = true;
         clawTimer.reset();
     }
@@ -79,7 +79,7 @@ public class ClawSubsystem {
      * Overrides to manually open the claw.
      */
     public void openClaw() {
-        clawServo.setPosition(RobotConstants.openClaw);
+        clawServo.setPosition(RobotHardware.openClaw);
         isClawClosed = false;
     }
 }

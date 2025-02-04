@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import java.util.HashMap;
 
-import config.RobotConstants;
+import config.RobotHardware;
 
 @Config
 public class Extension {
@@ -107,7 +107,7 @@ public class Extension {
         curLeft = leftExtension.getCurrentPosition();
 
         // Apply PID control
-        if (RobotConstants.inThresh(curLeft, pos, PIDThresh)) {
+        if (RobotHardware.inThresh(curLeft, pos, PIDThresh)) {
             applyPower(0);
         } else {
             double pidPower = pidController.calculate(curLeft, pos);

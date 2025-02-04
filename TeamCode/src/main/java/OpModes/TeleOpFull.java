@@ -2,15 +2,13 @@ package OpModes;
 
 import static autoModes.AutoTest.parkPose;
 import static autoModes.AutoTest.parkTimer;
-import static config.localization.Limelight.LX;
-import static config.localization.Limelight.LY;
 import static config.localization.Limelight.fiducialResults;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 
-import config.RobotConstants;
+import config.RobotHardware;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.Pivot;
@@ -143,10 +141,10 @@ public class TeleOpFull extends OpMode {
 
         // Manual controls for claw behavior
         if (gamepad1.dpad_up) {
-            clawServo.setPosition(RobotConstants.openClaw);
+            clawServo.setPosition(RobotHardware.openClaw);
         }
         if (gamepad1.dpad_down) {
-            clawServo.setPosition(RobotConstants.closeClaw);
+            clawServo.setPosition(RobotHardware.closeClaw);
         }
         if (gamepad1.dpad_left) { //testing for grabbing from side
             setPositions(-1);
@@ -270,7 +268,7 @@ public class TeleOpFull extends OpMode {
                 wrist.setForearmPos("Init");
                 wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
         }
     }

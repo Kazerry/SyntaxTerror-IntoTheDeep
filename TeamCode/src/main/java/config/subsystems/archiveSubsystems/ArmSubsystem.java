@@ -2,7 +2,7 @@ package config.subsystems.archiveSubsystems;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import config.RobotConstants;
+import config.RobotHardware;
 
 public class ArmSubsystem {
     private final PIDController controller;
@@ -44,11 +44,11 @@ public class ArmSubsystem {
     }
 
     public void raise() {
-        setTargetPosition(RobotConstants.armUp);
+        setTargetPosition(RobotHardware.armUp);
     }
 
     public void lower() {
-        setTargetPosition(RobotConstants.armDown);
+        setTargetPosition(RobotHardware.armDown);
     }
 
     public boolean isAtTarget(int target, double tolerance) {

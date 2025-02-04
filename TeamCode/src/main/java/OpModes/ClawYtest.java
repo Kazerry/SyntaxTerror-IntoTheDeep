@@ -16,10 +16,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-/**
- * @version 1.1, 12/13/2024
- * Enhanced Claw Intelligence OpMode
- */
 @Disabled
 @Config
 @TeleOp(name = "ClawYtest", group = "Test")

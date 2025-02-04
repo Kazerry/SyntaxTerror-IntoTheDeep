@@ -3,7 +3,6 @@ package config.subsystems;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
-import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.HashMap;
 
-import config.RobotConstants;
+import config.RobotHardware;
 
 @Config
 public class Pivot {
@@ -98,7 +97,7 @@ public class Pivot {
 
         power = pidController.calculate(curLeft) + (k * Math.cos(pos));
 
-        if (!RobotConstants.inThresh(power, lastPower, 0.001)) {
+        if (!RobotHardware.inThresh(power, lastPower, 0.001)) {
             applyPower(power);
             lastPower = power;
         }

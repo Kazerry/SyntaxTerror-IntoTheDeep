@@ -1,7 +1,7 @@
 package autoModes;
 
 
-import config.RobotConstants;
+import config.RobotHardware;
 import config.subsystems.Pivot;
 import config.subsystems.Extension;
 import config.subsystems.Wrist;
@@ -262,7 +262,7 @@ public class AutoTest extends OpMode {
                     follower.followPath(Backup);
                 }
                 if (pathTimer.getElapsedTimeSeconds() > 1.3){
-                    clawServo.setPosition(RobotConstants.openClaw);
+                    clawServo.setPosition(RobotHardware.openClaw);
                     setPathState(12);
                 }
                 break;
@@ -338,7 +338,7 @@ public class AutoTest extends OpMode {
                     setCaseState(3);
                     follower.followPath(curveBack);
                     if(pathTimer.getElapsedTimeSeconds() > 4) {
-                        clawServo.setPosition(RobotConstants.closeClaw);
+                        clawServo.setPosition(RobotHardware.closeClaw);
                         //setPathState(22);
                     }
                 }
@@ -361,7 +361,7 @@ public class AutoTest extends OpMode {
             case 22:
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
                     //Line13
-                    clawServo.setPosition(RobotConstants.openClaw);
+                    clawServo.setPosition(RobotHardware.openClaw);
                     //setCaseState(5); //above place
                     follower.followPath(placeBack1);
                     if(pathTimer.getElapsedTimeSeconds() > 2){
@@ -390,7 +390,7 @@ public class AutoTest extends OpMode {
             case 24:
                 if (follower.atParametricEnd()) {
                     //Line15
-                    clawServo.setPosition(RobotConstants.openClaw);
+                    clawServo.setPosition(RobotHardware.openClaw);
                     //setCaseState(5); //above place
                     follower.followPath(placeBack2);
                     if(pathTimer.getElapsedTimeSeconds() > 2){
@@ -419,7 +419,7 @@ public class AutoTest extends OpMode {
             case 26:
                 if (follower.atParametricEnd()) {
                     //Line17
-                    clawServo.setPosition(RobotConstants.openClaw);
+                    clawServo.setPosition(RobotHardware.openClaw);
                     //setCaseState(5); //above place
                     follower.followPath(placeBack3);
                     if(pathTimer.getElapsedTimeSeconds() > 2){
@@ -570,7 +570,7 @@ public class AutoTest extends OpMode {
         buildPaths();
         initTimer.resetTimer();
 
-        clawServo.setPosition(RobotConstants.closeClaw);
+        clawServo.setPosition(RobotHardware.closeClaw);
         wrist.setForearmPos("Middle");
         wrist.setBicepPos("Middle");
         wrist.setRotationPos(0);
@@ -628,7 +628,7 @@ public class AutoTest extends OpMode {
                 wrist.setForearmPos("Init");
                 wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
-                clawServo.setPosition(RobotConstants.closeClaw);
+                clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 1: // Under Specimen
                 pivot.setkP("Normal");
@@ -648,7 +648,7 @@ public class AutoTest extends OpMode {
                 wrist.setForearmPos("gPlace");
                 wrist.setBicepPos("gPlace");
                 wrist.setRotationPos(0);
-                clawServo.setPosition(RobotConstants.openClaw);
+                clawServo.setPosition(RobotHardware.openClaw);
                 extension.setPos("Idle");
                 break;
             case 4: // Observation grab UP

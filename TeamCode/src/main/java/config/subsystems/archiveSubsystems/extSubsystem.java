@@ -1,7 +1,7 @@
 package config.subsystems.archiveSubsystems;
 
-import static config.RobotConstants.slideDown;
-import static config.RobotConstants.slideUp;
+import static config.RobotHardware.slideDown;
+import static config.RobotHardware.slideUp;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;

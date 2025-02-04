@@ -1,7 +1,5 @@
 package OpModes;
 
-import static autoModes.AutoTest.parkPose;
-import static autoModes.AutoTest.parkTimer;
 import static config.localization.Limelight.LX;
 import static config.localization.Limelight.LY;
 import static config.localization.Limelight.fiducialResults;
@@ -11,7 +9,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.acmerobotics.dashboard.config.Config;
 
-import config.RobotConstants;
+import config.RobotHardware;
 import config.localization.KalmanFuse;
 import config.localization.Limelight;
 import config.subsystems.Pivot;
@@ -23,7 +21,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -152,10 +149,10 @@ public class SubsystemTest extends OpMode {
 
         // Manual controls for claw behavior
        if (gamepad1.dpad_up) {
-            clawServo.setPosition(RobotConstants.openClaw);
+            clawServo.setPosition(RobotHardware.openClaw);
         }
         if (gamepad1.dpad_down) {
-            clawServo.setPosition(RobotConstants.closeClaw);
+            clawServo.setPosition(RobotHardware.closeClaw);
         }
         if (gamepad1.dpad_left) { //testing for grabbing from side
             wrist.setForearmPos("gPlaceUP");
@@ -175,7 +172,7 @@ public class SubsystemTest extends OpMode {
             wrist.setForearmPos("downPlace");
             wrist.setBicepPos("downPlace");
             extension.setPos("downPlace");
-            clawServo.setPosition(RobotConstants.closeClaw);
+            clawServo.setPosition(RobotHardware.closeClaw);
         }
         if (gamepad1.left_bumper) { //Grab from wall
             pivot.setkP("Normal");
