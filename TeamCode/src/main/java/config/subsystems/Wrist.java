@@ -1,6 +1,7 @@
 package config.subsystems;
 
 import static config.RobotHardware.PosTestBicep;
+import static config.RobotHardware.PosTestForearm;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -59,7 +60,7 @@ public class Wrist {
         forearmPositions.put("downPlace",      0.73);
         forearmPositions.put("gPlace",      0.6);
         forearmPositions.put("gPlaceUP",      0.575);
-        forearmPositions.put("PosTestForearm", 0.5);
+        forearmPositions.put("PosTestForearm", PosTestForearm);
 
         rotationPositions[0] = 0.3;
         rotationPositions[1] = 0;

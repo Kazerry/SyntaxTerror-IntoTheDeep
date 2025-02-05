@@ -1,6 +1,7 @@
-package config.subsystems;
+package OpModes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,6 +14,7 @@ import config.subsystems.Pivot;
 import config.subsystems.Extension;
 import config.subsystems.Wrist;
 
+@Config
 @TeleOp(name = "PositionTest", group = "Test")
 public class PositionTest extends OpMode {
     private Extension extension;
@@ -29,6 +31,12 @@ public class PositionTest extends OpMode {
     private Servo bicepRight;
     private Servo forearm;
     private Servo rotation;
+
+    // Track current test positions
+    private String currentPivotPos = "";
+    private String currentExtensionPos = "";
+    private String currentBicepPos = "";
+    private String currentForearmPos = "";
 
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
@@ -66,43 +74,53 @@ public class PositionTest extends OpMode {
         pivot = new Pivot(hardwareMap, rightPivot, leftPivot);
         wrist = new Wrist(bicepLeft, bicepRight, forearm, rotation);
 
-
+        //initialize dashboard
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     }
 
     @Override
     public void loop() {
-        //initialize dashboard
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-
         // Update subsystems
         extension.update();
         pivot.update();
         wrist.update();
 
-        // Test positions using buttons
-        // Y button - Test pivot position
+        // Continuously update positions if buttons are pressed
         if (gamepad1.y) {
-            pivot.setPos("PosTestPivot");
+            currentPivotPos = "PosTestPivot";
+            pivot.setPos(currentPivotPos);
         }
 
-        // B button - Test extension position
         if (gamepad1.b) {
-            extension.setPos("PosTestExtension");
+            currentExtensionPos = "PosTestExtension";
+            extension.setPos(currentExtensionPos);
         }
 
-        // X button - Test bicep position
         if (gamepad1.x) {
-            wrist.setBicepPos("PosTestBicep");
+            currentBicepPos = "PosTestBicep";
+            wrist.setBicepPos(currentBicepPos);
         }
 
-        // A button - Test forearm position
         if (gamepad1.a) {
-            wrist.setForearmPos("PosTestForearm");
+            currentForearmPos = "PosTestForearm";
+            wrist.setForearmPos(currentForearmPos);
+        }
+
+        // If a position is active, continuously update it to get new dashboard values
+        if (!currentPivotPos.isEmpty()) {
+            pivot.setPos(currentPivotPos);
+        }
+        if (!currentExtensionPos.isEmpty()) {
+            extension.setPos(currentExtensionPos);
+        }
+        if (!currentBicepPos.isEmpty()) {
+            wrist.setBicepPos(currentBicepPos);
+        }
+        if (!currentForearmPos.isEmpty()) {
+            wrist.setForearmPos(currentForearmPos);
         }
 
         // Manual adjustments using D-pad
-        // This allows fine-tuning the test positions in real-time
         if (gamepad1.dpad_up && !lastDpadUp) {
             // Increment the current test position
         }
@@ -117,6 +135,11 @@ public class PositionTest extends OpMode {
         lastDpadRight = gamepad1.dpad_right;
 
         // Telemetry
+        telemetry.addData("=== Active Positions ===", "");
+        telemetry.addData("Current Pivot Position", currentPivotPos);
+        telemetry.addData("Current Extension Position", currentExtensionPos);
+        telemetry.addData("Current Bicep Position", currentBicepPos);
+        telemetry.addData("Current Forearm Position", currentForearmPos);
 
         telemetry.addData("=== Motors ===", "");
         telemetry.addData("Right Extension Pos", rightExtension.getCurrentPosition());

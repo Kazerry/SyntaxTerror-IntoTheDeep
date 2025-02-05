@@ -1,5 +1,6 @@
 package OpModes;
 
+import static java.lang.Math.abs;
 import static config.localization.Limelight.fiducialResults;
 
 import com.pedropathing.follower.Follower;
@@ -32,7 +33,7 @@ public class TeleOpInit extends OpMode {
     private Pose startPose = new Pose(0,0,0);
 
     private Extension extension;
-    private Pivot pivot;
+    public Pivot pivot;
     private Wrist wrist;
 
     private DcMotorEx leftFront;
