@@ -23,6 +23,13 @@ public class RobotHardware {
     public static int yellowRedMin = 1000, yellowRedMax = 2030;
     public static int yellowGreenMin = 1000, yellowGreenMax = 2550;
 
+
+    /** TEST position **/
+    public static int PosTestExtension = -100;
+    public static int PosTestPivot = 300;
+    public static double PosTestBicep = 0.5;
+    public static double PosTestForearm = 0.5;
+
     //River Pivot things
     public static boolean inThresh(double val, double val2, double tol) {
         return Math.abs(val - val2) < tol;

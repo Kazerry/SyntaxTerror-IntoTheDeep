@@ -1,5 +1,7 @@
 package config.subsystems;
 
+import static config.RobotHardware.PosTestPivot;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
@@ -30,6 +32,7 @@ public class Pivot {
     public static int Idle = 315;
     public static int PInit = 450;
     public static int PGrab = 100;
+
 
 
     private int pos = 0;
@@ -76,6 +79,7 @@ public class Pivot {
         positions.put("Grab", PGrab);
         positions.put("gPlace", 200);
         positions.put("gPlaceUP", 270);
+        positions.put("PosTestPivot", PosTestPivot);
 
         kPs.put("Normal", kP);
         kPs.put("Extended", extendedKp);

@@ -322,7 +322,7 @@ public class TeleOpInit extends OpMode {
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
                 wrist.setForearmPos("Grab");
-                wrist.setBicepPos("gUP");
+                wrist.setBicepPos("Intake");
                 extension.setPos("Specified");
                 clawServo.setPosition(RobotHardware.openClaw);
                 break;

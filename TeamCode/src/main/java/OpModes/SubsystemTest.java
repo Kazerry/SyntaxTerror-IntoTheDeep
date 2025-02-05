@@ -119,10 +119,12 @@ public class SubsystemTest extends OpMode {
     }
 
     @Override
+
     public void init_loop(){
         //Init movements if you want them
         wrist.setBicepPos("Middle");
         wrist.setForearmPos("Middle");
+        wrist.setRotationPos(0);
         wrist.update();
     }
 

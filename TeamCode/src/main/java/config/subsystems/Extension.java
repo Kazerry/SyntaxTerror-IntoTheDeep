@@ -1,5 +1,7 @@
 package config.subsystems;
 
+import static config.RobotHardware.PosTestExtension;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -56,7 +58,8 @@ public class Extension {
         positions.put("Basket", -2300);
         positions.put("Hang", -2500);
         positions.put("Retract", -1400);
-        positions.put("Specified", -1000); // Added for fine-tuning when under bars
+        positions.put("Specified", -50);
+        positions.put("PosTestExtension", PosTestExtension);// Added for fine-tuning when under bars
     }
 
     private void configureMotors() {
