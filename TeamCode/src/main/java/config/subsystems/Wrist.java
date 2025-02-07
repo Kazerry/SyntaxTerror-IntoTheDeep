@@ -14,18 +14,18 @@ public class Wrist {
     private Servo rotation, forearm, bicepLeft, bicepRight;
     public static double
             bInit = 1, // Intake 0
-            bGrab = 0.38, // Intake 1
-            bIntake= 0.45, // Intake 2
+            bGrab = 0.35, // Intake 1
+            bIntake= 0.39, // Intake 2
             bBasket = 0.5,
             bIdle = 0.5,
             bStart = 0.5,
-            bMiddle = 0.5,
+            bMiddle = 0.4,
 
             autonIdle = 0.2,
 
-            fInit = 0.9, //Intake 0
-            fGrab = 0.79, // Intake 1
-            fIntake = 0.82, // Intake 2
+            fInit = 1, //Intake 0
+            fGrab = 0.7, // Intake 1
+            fIntake = 0.89, // Intake 2
             fBasket = 0.1,
             fIdle = 0.5,
             fStart = 0.5,

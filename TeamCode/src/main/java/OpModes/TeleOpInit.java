@@ -376,8 +376,8 @@ public class TeleOpInit extends OpMode {
                 }
                 else if (grabSequenceState == 2 && sequenceTimer.getElapsedTimeSeconds() > 2.0) {
                     // After another 2 seconds - move bicep and forearm
-                    wrist.setBicepPos("Grab");
-                    wrist.setForearmPos("Grab");
+                    wrist.setBicepPos("Intake");
+                    wrist.setForearmPos("Intake");
                     sequenceTimer.resetTimer();
                     grabSequenceState = 3;
                 }
