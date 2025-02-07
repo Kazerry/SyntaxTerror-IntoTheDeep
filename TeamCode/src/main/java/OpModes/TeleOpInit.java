@@ -452,9 +452,9 @@ public class TeleOpInit extends OpMode {
             case 1:
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
-                pivot.setPos("gPlace");
-                wrist.setForearmPos("gPlace");
-                wrist.setBicepPos("gPlace");
+                pivot.setPos("specGrab");
+                wrist.setForearmPos("specGrab");
+                wrist.setBicepPos("specGrab");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
                 clawServo.setPosition(RobotHardware.openClaw);
@@ -464,7 +464,7 @@ public class TeleOpInit extends OpMode {
                 pivot.setkP("Normal");
                 pivot.setPos("Place");
                 wrist.setForearmPos("Place");
-                wrist.setBicepPos("Place");
+                wrist.setBicepPos("SpecPlace");
                 extension.setPos("Place");
                 clawServo.setPosition(RobotHardware.closeClaw);
                 break;

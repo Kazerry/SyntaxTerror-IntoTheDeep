@@ -15,7 +15,10 @@ public class Wrist {
     public static double
             bInit = 1, // Intake 0
             bGrab = 0.35, // Intake 1
-            bIntake= 0.39, // Intake 2
+            bIntake = 0.39, // Intake 2
+
+            bSpecGrab = 0.125, // Spec 1
+            bSpecPlace = 0.62,
             bBasket = 0.5,
             bIdle = 0.5,
             bStart = 0.5,
@@ -26,6 +29,9 @@ public class Wrist {
             fInit = 1, //Intake 0
             fGrab = 0.7, // Intake 1
             fIntake = 0.89, // Intake 2
+
+            fSpecGrab = 0.35, //Spec 1
+            fSpecPlace = 0.55, //Spec 2
             fBasket = 0.1,
             fIdle = 0.5,
             fStart = 0.5,
@@ -49,6 +55,8 @@ public class Wrist {
         bicepPositions.put("Init",      bInit); // Intake 0
         bicepPositions.put("Grab",      bGrab); // Intake 1
         bicepPositions.put("Intake",      bIntake); // Intake 2
+
+        bicepPositions.put("specGrab",      bSpecGrab); // Spec 1
         bicepPositions.put("Basket",      bBasket);
         bicepPositions.put("Idle",        bIdle);
         bicepPositions.put("Start",       bStart);
@@ -56,15 +64,16 @@ public class Wrist {
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
         bicepPositions.put("Specimen",      0.47);
-        bicepPositions.put("Place",      0.325); //Lowkey fine
+        bicepPositions.put("SpecPlace",      bSpecPlace); //Lowkey fine
         bicepPositions.put("downPlace",      0.392); //same wit this
-        bicepPositions.put("gPlace",      0.835);
         bicepPositions.put("gUP",      0.20);
         bicepPositions.put("PosTestBicep", PosTestBicep);
 
         forearmPositions.put("Init",      fInit); // Intake 0
         forearmPositions.put("Grab", fGrab); // Intake 1
         forearmPositions.put("Intake",      fIntake); // Intake 2
+
+        forearmPositions.put("SpecGrab",   fSpecGrab); // Spec 1
         forearmPositions.put("Basket",      fBasket);
         forearmPositions.put("Idle",        fIdle);
         forearmPositions.put("Start",       fStart);
@@ -73,7 +82,7 @@ public class Wrist {
         forearmPositions.put("Specimen",      0.50);
         forearmPositions.put("Middle",      fMiddle);
         forearmPositions.put("gUP",      0.47);
-        forearmPositions.put("Place",      0.72);
+        forearmPositions.put("SpecPlace",      fSpecPlace);
         forearmPositions.put("downPlace",      0.73);
         forearmPositions.put("gPlace",      0.6);
         forearmPositions.put("gPlaceUP",      0.575);

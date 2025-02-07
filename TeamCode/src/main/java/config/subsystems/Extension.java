@@ -53,13 +53,13 @@ public class Extension {
 
         positions.put("Intake", -1000);
         positions.put("Idle", -50);
-        positions.put("Place", -1350);
+        positions.put("Place", -595);
         positions.put("downPlace", -150);
         positions.put("Basket", -2300);
         positions.put("Hang", -2500);
         positions.put("Retract", -1400);
         positions.put("Specified", -50);
-        positions.put("Observe", -2000);
+        positions.put("Observe", -500);
         positions.put("PosTestExtension", PosTestExtension); // Added for fine-tuning when under bars
     }
 
