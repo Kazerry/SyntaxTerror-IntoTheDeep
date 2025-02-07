@@ -31,7 +31,7 @@ public class Pivot {
     public static int Basket = 315;
     public static int Idle = 315;
     public static int PInit = 450;
-    public static int PGrab = 100;
+    public static int PGrab = 10;
 
 
 

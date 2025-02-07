@@ -12,9 +12,26 @@ import java.util.HashMap;
 public class Wrist {
 
     private Servo rotation, forearm, bicepLeft, bicepRight;
-    public static double bIntake= 0.0, bBasket = 0.15, bIdle = 0.25, bStart = 0.45, bInit = 0.5,
-            bMiddle = 0.5, autonIdle = 0.2, fIntake = 0.4, fBasket = 0.1, fIdle = 0.5, fStart = 0.65,
-    fAutonIdle = 0.5, fMiddle = 0.5, fInit = 1.0; //fIntake = 1.0, fBasket = 0.3, bMiddle = 0.5 bStart = 0.8
+    public static double
+            bInit = 1, // Intake 0
+            bGrab = 0.38, // Intake 1
+            bIntake= 0.45, // Intake 2
+            bBasket = 0.5,
+            bIdle = 0.5,
+            bStart = 0.5,
+            bMiddle = 0.5,
+
+            autonIdle = 0.2,
+
+            fInit = 0.9, //Intake 0
+            fGrab = 0.79, // Intake 1
+            fIntake = 0.82, // Intake 2
+            fBasket = 0.1,
+            fIdle = 0.5,
+            fStart = 0.5,
+            fAutonIdle = 0.5,
+            fMiddle = bMiddle;
+
     private double bicepPos, forearmPos, rotationPos;
 
     public static HashMap<String, Double> bicepPositions = new HashMap<String, Double>();
@@ -29,32 +46,32 @@ public class Wrist {
         this.rotation = rotation;
 
         //Bicep 0.4 goes towards the back 0.6 goes towards the front
-        bicepPositions.put("Intake",      bIntake);
+        bicepPositions.put("Init",      bInit); // Intake 0
+        bicepPositions.put("Grab",      bGrab); // Intake 1
+        bicepPositions.put("Intake",      bIntake); // Intake 2
         bicepPositions.put("Basket",      bBasket);
         bicepPositions.put("Idle",        bIdle);
         bicepPositions.put("Start",       bStart);
         bicepPositions.put("Start2",       0.545);
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
-        bicepPositions.put("Init",      bInit);
         bicepPositions.put("Specimen",      0.47);
-        bicepPositions.put("Grab",      0.62); //0.525 0.160 change from previous
         bicepPositions.put("Place",      0.325); //Lowkey fine
         bicepPositions.put("downPlace",      0.392); //same wit this
         bicepPositions.put("gPlace",      0.835);
         bicepPositions.put("gUP",      0.20);
         bicepPositions.put("PosTestBicep", PosTestBicep);
 
-        forearmPositions.put("Intake",      fIntake);
+        forearmPositions.put("Init",      fInit); // Intake 0
+        forearmPositions.put("Grab", fGrab); // Intake 1
+        forearmPositions.put("Intake",      fIntake); // Intake 2
         forearmPositions.put("Basket",      fBasket);
         forearmPositions.put("Idle",        fIdle);
         forearmPositions.put("Start",       fStart);
         forearmPositions.put("Start2",       0.62);
         forearmPositions.put("Auton Idle",  fAutonIdle);
-        forearmPositions.put("Init",      fInit);
         forearmPositions.put("Specimen",      0.50);
         forearmPositions.put("Middle",      fMiddle);
-        forearmPositions.put("Grab",      0.93); //0.96 -0.03 change from previous
         forearmPositions.put("gUP",      0.47);
         forearmPositions.put("Place",      0.72);
         forearmPositions.put("downPlace",      0.73);
