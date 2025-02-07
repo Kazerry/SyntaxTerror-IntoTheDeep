@@ -120,4 +120,14 @@ public class Wrist {
         bicepPos = bicepPositions.get(pos);
         forearmPos = forearmPositions.get(pos);
     }
+
+    public int getCurrentRotationPos() {
+        // Return the current rotation position index (0-3)
+        for (int i = 0; i < rotationPositions.length; i++) {
+            if (Math.abs(rotationPositions[i] - rotationPos) < 0.01) {
+                return i;
+            }
+        }
+        return 0; // Default to 0 if no match found
+    }
 }

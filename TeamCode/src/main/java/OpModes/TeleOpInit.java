@@ -95,6 +95,8 @@ public class TeleOpInit extends OpMode {
     private Timer initTimer;
     private boolean servoPositionsEnabled = false;
 
+    private int savedRotationPos = 0;
+
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -190,9 +192,13 @@ public class TeleOpInit extends OpMode {
 
         int totalSequences = getCurrentTotalSequences();
 
-        // Sequence control
+        // Sequence control with state reset
         if (gamepad1.right_bumper && !lastRightBumperState) {
             currentSequence = (currentSequence + 1) % totalSequences;
+            if (currentSequenceSet == 0 && currentSequence == 2) {
+                grabSequenceState = 0; // Reset state when entering sequence 2
+                sequenceTimer.resetTimer();
+            }
             setPositions(currentSequence);
             servoPositionsEnabled = (currentSequence == 1 || currentSequence == 3);
         }
@@ -200,23 +206,25 @@ public class TeleOpInit extends OpMode {
 
         if (gamepad1.left_bumper && !lastLeftBumperState) {
             currentSequence = (currentSequence - 1 + totalSequences) % totalSequences;
+            if (currentSequenceSet == 0 && currentSequence == 2) {
+                grabSequenceState = 0; // Reset state when entering sequence 2
+                sequenceTimer.resetTimer();
+            }
             setPositions(currentSequence);
             servoPositionsEnabled = (currentSequence == 1 || currentSequence == 3);
         }
         lastLeftBumperState = gamepad1.left_bumper;
 
-        // Manual extension adjustment (only in intake case 1)
+        // manual extension control code
         if (currentSequenceSet == 0 && currentSequence == 1) {
-            int currentExtensionTicks = (rightExtension.getCurrentPosition() + leftExtension.getCurrentPosition()) / 2;
             if (gamepad1.left_trigger > 0.1) {
-                // Retract (closer to 0)
-                extension.setManualPos(Math.min(0, currentExtensionTicks + (int)(gamepad1.left_trigger * 50)));
+                extension.setManualPower(-gamepad1.left_trigger); // Retract
             } else if (gamepad1.right_trigger > 0.1) {
-                // Extract (more negative)
-                extension.setManualPos(Math.max(-2000, currentExtensionTicks - (int)(gamepad1.right_trigger * 50)));
+                extension.setManualPower(gamepad1.right_trigger); // Extend
+            } else {
+                extension.setManualPower(0); // Stop and hold position
             }
         }
-
 
         // Servo position control when in appropriate sequence
         if (servoPositionsEnabled) {
@@ -235,36 +243,21 @@ public class TeleOpInit extends OpMode {
             follower.setMaxPower(1.0);
         }
 
-        if (gamepad1.right_bumper && !lastRightBumperState) {
-            currentSequence = (currentSequence + 1) % totalSequences;
-            setPositions(currentSequence);
-            if (currentSequence == 3) { // When entering observation zone
-                sequenceTimer.resetTimer();
-            }
-            servoPositionsEnabled = (currentSequence == 1);
-        }
-
         setPositionsUpdate();
 
         // Get current sequence names based on current sequence set
         String[] currentSequenceNames = getCurrentSequenceNames();
 
-        // Telemetry with more detailed sequence information
+        // Telemetry updates
         telemetry.addData("Sequence Set",
                 currentSequenceSet == 0 ? "Intake" :
                         currentSequenceSet == 1 ? "Sample" : "Specimen");
-
-        // Current Sequence Details
         telemetry.addData("Current Sequence",
                 String.format("%d: %s", currentSequence, currentSequenceNames[currentSequence]));
-
-        // Next Sequence Details
         telemetry.addData("Next Sequence",
                 String.format("%d: %s",
                         (currentSequence + 1) % totalSequences,
                         currentSequenceNames[(currentSequence + 1) % totalSequences]));
-
-        // Previous Sequence Details
         telemetry.addData("Previous Sequence",
                 String.format("%d: %s",
                         (currentSequence - 1 + totalSequences) % totalSequences,
@@ -274,14 +267,9 @@ public class TeleOpInit extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("headingDeg", follower.getPose().getHeading());
-        telemetry.addData("bicepRight", bicepRight.getPosition());
-        telemetry.addData("bicepLeft", bicepLeft.getPosition());
-        telemetry.addData("clawServo", clawServo.getPosition());
-        telemetry.addData("rightExtension", rightExtension.getCurrentPosition());
-        telemetry.addData("leftExtension", leftExtension.getCurrentPosition());
-        telemetry.addData("rightPivot", rightPivot.getCurrentPosition());
-        telemetry.addData("leftPivot", leftPivot.getCurrentPosition());
-        telemetry.addData("Apriltags", fiducialResults);
+        telemetry.addData("Grab Sequence State", grabSequenceState);
+        telemetry.addData("Sequence Timer", sequenceTimer.getElapsedTimeSeconds());
+        telemetry.addData("Extension Position", extension.getCurrentPosition());
         telemetry.update();
 
         follower.setTeleOpMovementVectors(-gamepad1.left_stick_y,
@@ -330,9 +318,10 @@ public class TeleOpInit extends OpMode {
             follower.setMaxPower(1.0);
             isHalfSpeed = false;
         }
+
         switch (positions) {
             case 0: // Idle
-                wasUnderBarsOpen = false; // Reset this flag
+                wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Init");
                 wrist.setForearmPos("Init");
@@ -344,59 +333,65 @@ public class TeleOpInit extends OpMode {
                 break;
 
             case 1: // Under bars (open claw)
-                wasUnderBarsOpen = true; // Set this flag to true
+                wasUnderBarsOpen = true;
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
                 wrist.setForearmPos("Grab");
                 wrist.setBicepPos("Grab");
-                extension.setPos("Specified");
+                // Don't set extension position here - it's controlled manually
                 clawServo.setPosition(RobotHardware.openClaw);
-                grabSequenceState = 0; // Reset grab sequence state
+                // Save the current rotation position for case 2
+                savedRotationPos = wrist.getCurrentRotationPos();
                 break;
 
-
-            case 2: // Combined floor grab sequence (formerly cases 2, 3, and 4)
+            case 2: // Floor grab sequence
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
 
-                if (grabSequenceState == 0) {
-                    // Initial state - bicep goes down
-                    wrist.setForearmPos("Intake");
-                    wrist.setBicepPos("Intake");
-                    extension.setPos("Specified"); // Maintain previous extension
-                    sequenceTimer.resetTimer();
-                    grabSequenceState = 1;
-                }
-                else if (grabSequenceState == 1 && sequenceTimer.getElapsedTimeSeconds() > 2.0) {
-                    // After 2 seconds - close claw
-                    clawServo.setPosition(RobotHardware.closeClaw);
-                    sequenceTimer.resetTimer();
-                    grabSequenceState = 2;
-                }
-                else if (grabSequenceState == 2 && sequenceTimer.getElapsedTimeSeconds() > 2.0) {
-                    // After another 2 seconds - move bicep and forearm
-                    wrist.setBicepPos("Intake");
-                    wrist.setForearmPos("Intake");
-                    sequenceTimer.resetTimer();
-                    grabSequenceState = 3;
-                }
-                else if (grabSequenceState == 3 && sequenceTimer.getElapsedTimeSeconds() > 2.0) {
-                    // After another 2 seconds - set extension and rotation
-                    extension.setPos("Idle");
-                    wrist.setRotationPos(1);
-                    grabSequenceState = 4;
+                switch (grabSequenceState) {
+                    case 0: // Initial state
+                        wrist.setForearmPos("Intake");
+                        wrist.setBicepPos("Intake");
+                        wrist.setRotationPos(savedRotationPos); // Use saved rotation from case 1
+                        clawServo.setPosition(RobotHardware.openClaw);
+                        sequenceTimer.resetTimer();
+                        grabSequenceState = 1;
+                        break;
+
+                    case 1: // After 2 seconds - close claw
+                        if (sequenceTimer.getElapsedTimeSeconds() > 2.0) {
+                            clawServo.setPosition(RobotHardware.closeClaw);
+                            sequenceTimer.resetTimer();
+                            grabSequenceState = 2;
+                        }
+                        break;
+
+                    case 2: // After another 2 seconds - move bicep and forearm
+                        if (sequenceTimer.getElapsedTimeSeconds() > 2.0) {
+                            wrist.setBicepPos("Intake");
+                            wrist.setForearmPos("Intake");
+                            sequenceTimer.resetTimer();
+                            grabSequenceState = 3;
+                        }
+                        break;
+
+                    case 3: // After final 2 seconds - set extension and rotation
+                        if (sequenceTimer.getElapsedTimeSeconds() > 2.0) {
+                            extension.setPos("Idle");
+                            wrist.setRotationPos(1);
+                            grabSequenceState = 4;
+                        }
+                        break;
                 }
                 break;
 
-            case 3: // Observation zone (formerly case 5)
+            case 3: // Observation zone
                 pivot.setkP("Normal");
                 pivot.setPos("Grab");
                 wrist.setForearmPos("Middle");
                 wrist.setBicepPos("Middle");
                 extension.setPos("Observe");
-
-                // Handle delayed claw opening
                 if (sequenceTimer.getElapsedTimeSeconds() > 2.0) {
                     clawServo.setPosition(RobotHardware.openClaw);
                 }
