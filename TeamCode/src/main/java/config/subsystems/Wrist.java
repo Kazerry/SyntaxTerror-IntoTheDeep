@@ -17,8 +17,8 @@ public class Wrist {
             bGrab = 0.35, // Intake 1
             bIntake = 0.39, // Intake 2
 
-            bSpecGrab = 0.125, // Spec 1
-            bSpecPlace = 0.62,
+            bSpecGrab = 0.215, // Spec 1
+            bSpecPlace = 0.61,
             bBasket = 0.5,
             bIdle = 0.5,
             bStart = 0.5,
@@ -31,7 +31,7 @@ public class Wrist {
             fIntake = 0.89, // Intake 2
 
             fSpecGrab = 0.40, //Spec 1
-            fSpecPlace = 0.55, //Spec 2
+            fSpecPlace = 0.5, //Spec 2
             fBasket = 0.1,
             fIdle = 0.5,
             fStart = 0.5,

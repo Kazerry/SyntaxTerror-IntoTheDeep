@@ -305,7 +305,13 @@ public class OneParkAutoBlue extends OpMode {
                 if (follower.atParametricEnd()) {
                     //Line7
                     follower.followPath(observationPush2);
-                    //setPathState(18);
+                    setPathState(18);
+                }
+                break;
+            case 18:
+                if (follower.atParametricEnd()) {
+                    setCaseState(121);
+                    //setPathState(19);
                 }
                 break;
         }
@@ -506,6 +512,14 @@ public class OneParkAutoBlue extends OpMode {
                 extension.setPos("Idle");
                 wrist.setBicepPos("Auton Idle");
                 wrist.setForearmPos("Auton Idle");
+                break;
+            case 121: // Middle
+                pivot.setkP("Normal");
+                pivot.setPos("Grab");
+                wrist.setForearmPos("Grab");
+                wrist.setBicepPos("Grab");
+                extension.setPos("Idle");
+                clawServo.setPosition(RobotHardware.openClaw);
                 break;
         }
 

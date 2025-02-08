@@ -452,15 +452,18 @@ public class TeleOpInit extends OpMode {
                 pivot.setkP("Normal");
                 pivot.setPos("Place");
                 clawServo.setPosition(RobotHardware.closeClaw);
-                if(specTimer.getElapsedTimeSeconds() > 2){
+                if(specTimer.getElapsedTimeSeconds() > 1.5){
                     wrist.setForearmPos("SpecPlace");
                     wrist.setBicepPos("SpecPlace");
                     extension.setPos("Place");
                     clawServo.setPosition(RobotHardware.closeClaw);
                 }
-                if(specTimer.getElapsedTimeSeconds() > 5){
+                if(specTimer.getElapsedTimeSeconds() > 2){
                     wrist.setRotationPos(4); //180 degrees
+                    clawServo.setPosition(RobotHardware.closeClaw);
                 }
+                clawServo.setPosition(RobotHardware.closeClaw);
+                break;
             case 4:
                 specTimer.resetTimer();
                 wasUnderBarsOpen = false;

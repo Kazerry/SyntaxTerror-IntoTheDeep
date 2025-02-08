@@ -35,7 +35,7 @@ public class TeleOpFull extends OpMode {
     private Pose startPose = new Pose(0,0,0);
 
     private Extension extension;
-    public Pivot pivot;
+    private Pivot pivot;
     private Wrist wrist;
 
     private DcMotorEx leftFront;
@@ -100,7 +100,7 @@ public class TeleOpFull extends OpMode {
     private Servo rotation;
     private Servo clawServo;
 
-    private Timer initTimer;
+    private Timer initTimer, specTimer;
     private boolean servoPositionsEnabled = false;
 
     private int savedRotationPos = 0;
@@ -142,30 +142,36 @@ public class TeleOpFull extends OpMode {
 
         initTimer = new Timer();
         posTimer = new Timer();
+        specTimer = new Timer();
 
         extension = new Extension(leftExtension, rightExtension, extLimit);
         pivot = new Pivot(hardwareMap, rightPivot, leftPivot);
         wrist = new Wrist(bicepLeft, bicepRight, forearm, rotation);
 
-        wrist.setBicepPos("Middle");
-        wrist.setForearmPos("Middle");
         wrist.setRotationPos(0);
 
         follower.startTeleopDrive();
         follower.setMaxPower(1);
         initTimer.resetTimer();
         sequenceTimer = new Timer();
+
+        wrist.setForearmPos("Init");
+        wrist.setBicepPos("Init");
+        pivot.setkP("Normal");
+        pivot.setPos("Init");
     }
 
     @Override
     public void init_loop() {
-        if(initTimer.getElapsedTimeSeconds() > 1) {
-            pivot.setkP("Normal");
-            pivot.setPos("Start");
-        }
-        if(initTimer.getElapsedTimeSeconds() > 2) {
+        if(initTimer.getElapsedTimeSeconds() >= 2) {
             setPositions(0);
             setPositionsUpdate();
+        }
+        if(initTimer.getElapsedTimeSeconds() < 2) {
+            wrist.setForearmPos("Init");
+            wrist.setBicepPos("Init");
+            pivot.setkP("Normal");
+            pivot.setPos("Init");
         }
         wrist.update();
         pivot.update();
@@ -428,6 +434,7 @@ public class TeleOpFull extends OpMode {
                 clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 1:
+                specTimer.resetTimer();
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("SpecGrab");
@@ -438,7 +445,7 @@ public class TeleOpFull extends OpMode {
                 clawServo.setPosition(RobotHardware.openClaw);
                 break;
             case 2:
-                posTimer.resetTimer();
+                specTimer.resetTimer();
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("SpecGrab");
@@ -453,14 +460,20 @@ public class TeleOpFull extends OpMode {
                 pivot.setkP("Normal");
                 pivot.setPos("Place");
                 clawServo.setPosition(RobotHardware.closeClaw);
-                if(posTimer.getElapsedTimeSeconds() > 1){
+                if(specTimer.getElapsedTimeSeconds() > 1.5){
                     wrist.setForearmPos("SpecPlace");
                     wrist.setBicepPos("SpecPlace");
                     extension.setPos("Place");
                     clawServo.setPosition(RobotHardware.closeClaw);
-                    wrist.setRotationPos(4); //180 degrees
                 }
+                if(specTimer.getElapsedTimeSeconds() > 2){
+                    wrist.setRotationPos(4); //180 degrees
+                    clawServo.setPosition(RobotHardware.closeClaw);
+                }
+                clawServo.setPosition(RobotHardware.closeClaw);
+                break;
             case 4:
+                specTimer.resetTimer();
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Place");
