@@ -21,8 +21,6 @@ public class Extension {
     private boolean wasPressed = false;
     private int pos;
     private int curLeft;
-    private double manualPower = 0;
-    private boolean isManualMode = false;
 
     public static double kP = 0.0075, kI = 0, kD = 0;
     PIDController pidController = new PIDController(kP, kI, kD);
@@ -77,16 +75,7 @@ public class Extension {
 
         curLeft = leftExtension.getCurrentPosition();
 
-        if (isManualMode) {
-            // Only apply manual power when it's non-zero
-            if (manualPower != 0) {
-                applyPower(manualPower);
-            } else {
-                // When manual power is 0, hold position
-                pos = curLeft;
-                isManualMode = false;
-            }
-        } else if (RobotHardware.inThresh(curLeft, pos, PIDThresh)) {
+        if (RobotHardware.inThresh(curLeft, pos, PIDThresh)) {
             applyPower(0);
         } else {
             double pidPower = pidController.calculate(curLeft, pos);
@@ -97,16 +86,8 @@ public class Extension {
         }
     }
 
-    public void setManualPower(double power) {
-        // Scale down the input power for smoother control
-        this.manualPower = power * 0.7; // Adjust this multiplier as needed
-        this.isManualMode = true;
-    }
-
     public void setPos(String pos) {
         this.pos = positions.get(pos);
-        this.isManualMode = false;
-        this.manualPower = 0;
     }
 
     public void applyPower(double power) {
