@@ -29,6 +29,7 @@ public class RobotHardware {
     public static int PosTestPivot = 300;
     public static double PosTestBicep = 0.5;
     public static double PosTestForearm = 0.5;
+    public static double PosTestRotation = 0.3;
 
     //River Pivot things
     public static boolean inThresh(double val, double val2, double tol) {

@@ -77,7 +77,7 @@ public class Pivot {
         positions.put("Lift", Lift);
         positions.put("Init", PInit);
         positions.put("Grab", PGrab);
-        positions.put("specGrab", 440);
+        positions.put("SpecGrab", 440);
         positions.put("Place", 232);
         positions.put("PosTestPivot", PosTestPivot);
 

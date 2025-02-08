@@ -53,17 +53,18 @@ public class TeleOpInit extends OpMode {
     private boolean lastRightBumperState = false;
     private boolean lastLeftBumperState = false;
     private boolean lastXState = false;
+    private boolean initboo = false;
     private int currentSequence = 0;
     private int currentSequenceSet = 0; // 0 = Intake, 1 = Sample, 2 = Specimen
 
     private boolean wasUnderBarsOpen = false;
 
-    private Timer sequenceTimer;
+    private Timer sequenceTimer, posTimer;
     private int grabSequenceState = 0;
 
     private static final int INTAKE_TOTAL_SEQUENCES = 6; // Updated to 6 cases
     private static final int SAMPLE_TOTAL_SEQUENCES = 3;
-    private static final int SPECIMEN_TOTAL_SEQUENCES = 3;
+    private static final int SPECIMEN_TOTAL_SEQUENCES = 5;
 
     private static final String[] INTAKE_SEQUENCE_NAMES = {
             "Idle",
@@ -84,7 +85,9 @@ public class TeleOpInit extends OpMode {
     private static final String[] SPECIMEN_SEQUENCE_NAMES = {
             "Idle",
             "Grab from Wall",
-            "Place Position"
+            "Grab from Wall Closed",
+            "Place Position",
+            "Place Position Open"
     };
 
     private int positions;
@@ -95,7 +98,7 @@ public class TeleOpInit extends OpMode {
     private Servo rotation;
     private Servo clawServo;
 
-    private Timer initTimer;
+    private Timer initTimer, specTimer;
     private boolean servoPositionsEnabled = false;
 
     private int savedRotationPos = 0;
@@ -135,6 +138,8 @@ public class TeleOpInit extends OpMode {
         LimeInit.LimelightInit(limelight, follower, startPose);
 
         initTimer = new Timer();
+        posTimer = new Timer();
+        specTimer = new Timer();
 
         extension = new Extension(leftExtension, rightExtension, extLimit);
         pivot = new Pivot(hardwareMap, rightPivot, leftPivot);
@@ -163,6 +168,7 @@ public class TeleOpInit extends OpMode {
         wrist.update();
         pivot.update();
 
+        initboo = true;
         if (initTimer.getElapsedTimeSeconds() > 4) {
             telemetry.addData("bicepLeft", bicepLeft.getPosition());
             telemetry.addData("bicepRight", bicepRight.getPosition());
@@ -184,6 +190,8 @@ public class TeleOpInit extends OpMode {
         extension.update();
         pivot.update();
         wrist.update();
+
+        initboo = false;
 
         // Switch between sequence sets
         if (gamepad1.x && !lastXState) {
@@ -316,11 +324,13 @@ public class TeleOpInit extends OpMode {
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Init");
-                wrist.setForearmPos("Init");
-                wrist.setBicepPos("Init");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
                 clawServo.setPosition(RobotHardware.closeClaw);
+                if((posTimer.getElapsedTimeSeconds() > 1.5 || initboo)){
+                    wrist.setForearmPos("Init");
+                    wrist.setBicepPos("Init");
+                }
                 break;
 
             case 1: // Under bars (open claw)
@@ -348,12 +358,15 @@ public class TeleOpInit extends OpMode {
                 break;
 
             case 4: // Move To Intermediate
-                wrist.setBicepPos("Intake");
-                wrist.setForearmPos("Intake");
+                wrist.setBicepPos("Grab");
+                wrist.setForearmPos("Grab");
                 break;
 
             case 5: // Move To Final
+                posTimer.resetTimer();
                 extension.setPos("Idle");
+                wrist.setBicepPos("Middle");
+                wrist.setForearmPos("Middle");
                 wrist.setRotationPos(0);
                 break;
         }
@@ -393,6 +406,14 @@ public class TeleOpInit extends OpMode {
     }
 
     private void setSpecimenPositions() {
+        if (positions == 1) {
+            follower.setMaxPower(0.3);
+            isHalfSpeed = true;
+        } else if (isHalfSpeed && gamepad1.right_trigger <= 0.5) {
+            follower.setMaxPower(1.0);
+            isHalfSpeed = false;
+        }
+
         switch (positions) {
             case 0:
                 wasUnderBarsOpen = false;
@@ -405,23 +426,51 @@ public class TeleOpInit extends OpMode {
                 clawServo.setPosition(RobotHardware.closeClaw);
                 break;
             case 1:
+                specTimer.resetTimer();
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
-                pivot.setPos("specGrab");
-                wrist.setForearmPos("specGrab");
-                wrist.setBicepPos("specGrab");
+                pivot.setPos("SpecGrab");
+                wrist.setForearmPos("SpecGrab");
+                wrist.setBicepPos("SpecGrab");
                 wrist.setRotationPos(0);
                 extension.setPos("Idle");
                 clawServo.setPosition(RobotHardware.openClaw);
                 break;
             case 2:
+                specTimer.resetTimer();
+                wasUnderBarsOpen = false;
+                pivot.setkP("Normal");
+                pivot.setPos("SpecGrab");
+                wrist.setForearmPos("SpecGrab");
+                wrist.setBicepPos("SpecGrab");
+                wrist.setRotationPos(0);
+                extension.setPos("Idle");
+                clawServo.setPosition(RobotHardware.closeClaw);
+                break;
+            case 3:
                 wasUnderBarsOpen = false;
                 pivot.setkP("Normal");
                 pivot.setPos("Place");
-                wrist.setForearmPos("Place");
+                clawServo.setPosition(RobotHardware.closeClaw);
+                if(specTimer.getElapsedTimeSeconds() > 2){
+                    wrist.setForearmPos("SpecPlace");
+                    wrist.setBicepPos("SpecPlace");
+                    extension.setPos("Place");
+                    clawServo.setPosition(RobotHardware.closeClaw);
+                }
+                if(specTimer.getElapsedTimeSeconds() > 5){
+                    wrist.setRotationPos(4); //180 degrees
+                }
+            case 4:
+                specTimer.resetTimer();
+                wasUnderBarsOpen = false;
+                pivot.setkP("Normal");
+                pivot.setPos("Place");
+                wrist.setForearmPos("SpecPlace");
                 wrist.setBicepPos("SpecPlace");
                 extension.setPos("Place");
-                clawServo.setPosition(RobotHardware.closeClaw);
+                clawServo.setPosition(RobotHardware.openClaw);
+                wrist.setRotationPos(4); //180 degrees
                 break;
         }
     }

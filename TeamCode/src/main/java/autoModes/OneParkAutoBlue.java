@@ -102,7 +102,7 @@ public class OneParkAutoBlue extends OpMode {
                 .build();
         //Backup Line
         Backup = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(rightBlueSub), new Point(rightBlueSub.getX() -4.5,
+                .addPath(new BezierLine(new Point(rightBlueSub), new Point(rightBlueSub.getX() -5,
                         rightBlueSub.getY())))
                 .setConstantHeadingInterpolation(0)
                 .setPathEndTimeoutConstraint(100)
@@ -110,7 +110,7 @@ public class OneParkAutoBlue extends OpMode {
 
         //Line2
         specimenCurve = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(rightBlueSub.getX() -4.5,
+                .addPath(new BezierCurve(new Point(rightBlueSub.getX() -5,
                         rightBlueSub.getY()), new Point(26.700, 32.800),
                         new Point(59.700, 32.800)))
                 .setConstantHeadingInterpolation(0)
@@ -255,7 +255,7 @@ public class OneParkAutoBlue extends OpMode {
                 break;
             case 11:
                 //Backup Line
-                follower.setMaxPower(0.4);
+                follower.setMaxPower(0.7);
                 if(pathTimer.getElapsedTimeSeconds() > 0.4) {
                     follower.followPath(Backup);
                 }

@@ -30,7 +30,7 @@ public class Wrist {
             fGrab = 0.7, // Intake 1
             fIntake = 0.89, // Intake 2
 
-            fSpecGrab = 0.35, //Spec 1
+            fSpecGrab = 0.40, //Spec 1
             fSpecPlace = 0.55, //Spec 2
             fBasket = 0.1,
             fIdle = 0.5,
@@ -43,7 +43,7 @@ public class Wrist {
     public static HashMap<String, Double> bicepPositions = new HashMap<String, Double>();
     public static HashMap<String, Double> forearmPositions = new HashMap<String, Double>();
 
-    public static double[] rotationPositions = new double[4];
+    public static double[] rotationPositions = new double[5];
 
     public Wrist(Servo bicepLeft, Servo bicepRight, Servo forearm, Servo rotation) {
         this.bicepLeft = bicepLeft;
@@ -56,14 +56,14 @@ public class Wrist {
         bicepPositions.put("Grab",      bGrab); // Intake 1
         bicepPositions.put("Intake",      bIntake); // Intake 2
 
-        bicepPositions.put("specGrab",      bSpecGrab); // Spec 1
+        bicepPositions.put("SpecGrab",      bSpecGrab); // Spec 1
         bicepPositions.put("Basket",      bBasket);
         bicepPositions.put("Idle",        bIdle);
         bicepPositions.put("Start",       bStart);
-        bicepPositions.put("Start2",       0.545);
+        bicepPositions.put("Start2",       0.6);
         bicepPositions.put("Auton Idle",  autonIdle);
         bicepPositions.put("Middle",  bMiddle);
-        bicepPositions.put("Specimen",      0.47);
+        bicepPositions.put("Specimen",      0.5);
         bicepPositions.put("SpecPlace",      bSpecPlace); //Lowkey fine
         bicepPositions.put("downPlace",      0.392); //same wit this
         bicepPositions.put("gUP",      0.20);
@@ -80,7 +80,7 @@ public class Wrist {
         forearmPositions.put("Start",       fStart);
         forearmPositions.put("Start2",       0.62);
         forearmPositions.put("Auton Idle",  fAutonIdle);
-        forearmPositions.put("Specimen",      0.50);
+        forearmPositions.put("Specimen",      0.46);
         forearmPositions.put("Middle",      fMiddle);
         forearmPositions.put("gUP",      0.47);
         forearmPositions.put("downPlace",      0.73);
@@ -92,6 +92,7 @@ public class Wrist {
         rotationPositions[1] = 0;
         rotationPositions[2] = 0.2;
         rotationPositions[3] = 0.4;
+        rotationPositions[4] = 0.95;//180 degrees
     }
 
     public void update()

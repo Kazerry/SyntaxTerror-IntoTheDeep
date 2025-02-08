@@ -17,6 +17,7 @@ public class ServoInitTest extends OpMode {
     private Servo bicepLeft;
     private Servo bicepRight;
     private Servo forearm;
+    private Servo rotation;
 
     // Motors for telemetry
     private DcMotorEx rightExtension;
@@ -30,6 +31,7 @@ public class ServoInitTest extends OpMode {
         bicepLeft = hardwareMap.get(Servo.class, "bicepLeft");
         bicepRight = hardwareMap.get(Servo.class, "bicepRight");
         forearm = hardwareMap.get(Servo.class, "forearm");
+        rotation = hardwareMap.get(Servo.class, "rotation");
 
         // Initialize motors for telemetry
         rightExtension = hardwareMap.get(DcMotorEx.class, "rightExtension");
@@ -68,6 +70,7 @@ public class ServoInitTest extends OpMode {
         telemetry.addData("Bicep Left Current", bicepLeft.getPosition());
         telemetry.addData("Bicep Right Current", bicepRight.getPosition());
         telemetry.addData("Forearm Current", forearm.getPosition());
+        telemetry.addData("Rotation Current", rotation.getPosition());
 
         telemetry.addData("=== Motor Positions ===", "");
         telemetry.addData("Right Extension Pos", rightExtension.getCurrentPosition());
@@ -91,5 +94,6 @@ public class ServoInitTest extends OpMode {
         bicepLeft.setPosition(RobotHardware.PosTestBicep);
         bicepRight.setPosition(1 - RobotHardware.PosTestBicep);  // Inverse movement
         forearm.setPosition(RobotHardware.PosTestForearm);
+        rotation.setPosition(RobotHardware.PosTestRotation);
     }
 }
