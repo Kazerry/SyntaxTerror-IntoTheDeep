@@ -354,7 +354,7 @@ public class TeleOpInit extends OpMode {
 
             case 5: // Move To Final
                 extension.setPos("Idle");
-                wrist.setRotationPos(1);
+                wrist.setRotationPos(0);
                 break;
         }
     }
