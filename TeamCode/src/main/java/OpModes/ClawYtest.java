@@ -58,7 +58,7 @@ public class ClawYtest extends OpMode {
     @Override
     public void init() {
         // Initialize Follower and Drive Motors
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
         // Initialize Servos and Sensors
         clawServo = hardwareMap.get(Servo.class, "Cservo");

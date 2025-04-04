@@ -71,8 +71,7 @@ public class SubsystemTest extends OpMode {
     @Override
     public void init() {
 
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         /*if (parkTimer.getElapsedTimeSeconds() < 40) {
             startPose = parkPose;
         } else {

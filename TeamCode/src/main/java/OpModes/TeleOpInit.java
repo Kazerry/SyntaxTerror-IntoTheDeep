@@ -105,11 +105,10 @@ public class TeleOpInit extends OpMode {
 
     @Override
     public void init() {
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        //limelight = hardwareMap.get(Limelight3A.class, "limelight");
         rightExtension = hardwareMap.get(DcMotorEx.class, "rightExtension");
         leftExtension = hardwareMap.get(DcMotorEx.class, "leftExtension");
         rightPivot = hardwareMap.get(DcMotorEx.class, "rightPivot");
@@ -132,10 +131,10 @@ public class TeleOpInit extends OpMode {
         leftExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        kalmanFuse = new KalmanFuse();
-        kalmanFuse.KalmanInit();
-        LimeInit = new Limelight();
-        LimeInit.LimelightInit(limelight, follower, startPose);
+        //kalmanFuse = new KalmanFuse();
+        //kalmanFuse.KalmanInit();
+        //LimeInit = new Limelight();
+        //LimeInit.LimelightInit(limelight, follower, startPose);
 
         initTimer = new Timer();
         posTimer = new Timer();
