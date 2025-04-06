@@ -1,11 +1,9 @@
 package OpModes;
 
 import static java.lang.Math.abs;
-import static config.localization.Limelight.fiducialResults;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.util.Constants;
 
 import config.RobotHardware;
 import config.localization.KalmanFuse;
@@ -26,8 +24,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name = "Syntax Terror TeleInit", group = "!TeleOp")
-public class TeleOpInit extends OpMode {
+@TeleOp(name = "Maker Faire Syntax Terror TeleInit", group = "!TeleOp")
+public class MakerFaireTeleOp extends OpMode {
     private Follower follower;
     private KalmanFuse kalmanFuse;
     private Pose startPose = new Pose(0,0,0);
@@ -193,17 +191,17 @@ public class TeleOpInit extends OpMode {
         initboo = false;
 
         // Switch between sequence sets
-        if (gamepad1.x && !lastXState) {
+        if (gamepad2.x && !lastXState) {
             currentSequenceSet = (currentSequenceSet + 1) % 3;
             currentSequence = 0; // Reset to first position when switching
             setPositions(currentSequence);
         }
-        lastXState = gamepad1.x;
+        lastXState = gamepad2.x;
 
         int totalSequences = getCurrentTotalSequences();
 
         // Sequence control with state reset
-        if (gamepad1.right_bumper && !lastRightBumperState) {
+        if (gamepad2.right_bumper && !lastRightBumperState) {
             currentSequence = (currentSequence + 1) % totalSequences;
             if (currentSequenceSet == 0 && currentSequence == 2) {
                 grabSequenceState = 0; // Reset state when entering sequence 2
@@ -212,9 +210,9 @@ public class TeleOpInit extends OpMode {
             setPositions(currentSequence);
             servoPositionsEnabled = (currentSequence == 1 || currentSequence == 3);
         }
-        lastRightBumperState = gamepad1.right_bumper;
+        lastRightBumperState = gamepad2.right_bumper;
 
-        if (gamepad1.left_bumper && !lastLeftBumperState) {
+        if (gamepad2.left_bumper && !lastLeftBumperState) {
             currentSequence = (currentSequence - 1 + totalSequences) % totalSequences;
             if (currentSequenceSet == 0 && currentSequence == 2) {
                 grabSequenceState = 0; // Reset state when entering sequence 2
@@ -223,14 +221,14 @@ public class TeleOpInit extends OpMode {
             setPositions(currentSequence);
             servoPositionsEnabled = (currentSequence == 1 || currentSequence == 3);
         }
-        lastLeftBumperState = gamepad1.left_bumper;
+        lastLeftBumperState = gamepad2.left_bumper;
 
         // Servo position control when in appropriate sequence
         if (servoPositionsEnabled) {
-            if (gamepad1.dpad_left) wrist.setRotationPos(0);
-            if (gamepad1.dpad_up) wrist.setRotationPos(1);
-            if (gamepad1.dpad_right) wrist.setRotationPos(2);
-            if (gamepad1.dpad_down) wrist.setRotationPos(3);
+            if (gamepad2.dpad_left) wrist.setRotationPos(0);
+            if (gamepad2.dpad_up) wrist.setRotationPos(1);
+            if (gamepad2.dpad_right) wrist.setRotationPos(2);
+            if (gamepad2.dpad_down) wrist.setRotationPos(3);
         }
 
         // Speed control
